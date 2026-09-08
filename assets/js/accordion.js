@@ -83,6 +83,24 @@
     list.style.setProperty('--amt', amt.value.toFixed(4));
   }
 
+  /* The summary row has to be one fixed height for the open/peek maths to
+     hold, but a guessed height clips the longer texts. So measure the
+     tallest one and let that be the height. */
+  function sizePeek() {
+    if (variant !== 'preview') return;
+    let tallest = 0;
+    for (const el of items) {
+      const p = el.querySelector('.acc__peek');
+      if (!p) continue;
+      p.style.height = 'auto';
+      tallest = Math.max(tallest, p.scrollHeight);
+      p.style.height = '';
+    }
+    if (tallest) list.style.setProperty('--peek-h', (tallest + 22) + 'px');
+  }
+  sizePeek();
+  addEventListener('resize', sizePeek);
+
   let onFrame = () => {};                     // variant hook, set below
 
   function tick(now) {

@@ -28,7 +28,9 @@
      teaser always fills the screen no matter the viewport.             */
   --rows: 5;
   --row-h-idle: clamp(58px, 8vh, 86px);     /* a row while all are shut */
-  --peek-h: clamp(72px, 10vh, 104px);       /* the summary line, variant 3 */
+  /* Fallback only — accordion.js measures the longest summary and
+     overrides this, so nothing is ever clipped. */
+  --peek-h: clamp(96px, 12vh, 128px);       /* the summary line, variant 3 */
   --row-h: clamp(40px, 4.9vh, 56px);        /* a closed row, block open */
   --row-h-open: clamp(52px, 6.5vh, 74px);   /* the active one, larger   */
   --fs-row: clamp(21px, 2.25vw, 30px);      /* closed headline          */
@@ -211,8 +213,8 @@ ul{margin:0;padding:0;list-style:none}
   display:grid;align-content:center;justify-items:center;gap:10px;
   height:calc(var(--peek) * var(--peek-h));
   margin:0;padding:0 clamp(24px,6vw,90px);overflow:hidden;cursor:pointer;
-  font-size:clamp(14px,1.05vw,16px);line-height:1.5;text-align:center;
-  color:var(--ink-60);max-width:66ch;justify-self:center;
+  font-size:clamp(14px,1.05vw,16px);line-height:1.55;text-align:center;
+  color:var(--ink-60);max-width:74ch;margin-inline:auto;
   opacity:clamp(0, calc(var(--peek) * 2.4 - .5), 1);
   translate:0 calc(var(--vel) * .25);
 }

@@ -40,25 +40,54 @@
   --wrap:1008px;
   --gutter:136px;
 
+  /* ── Liquid canvas ───────────────────────────────────────────────────
+     The design is a fixed 1280 canvas. Rather than reflow it at
+     breakpoints — which would mean inventing layouts nobody drew — the
+     whole thing scales to the window width. At 1280 and above it is
+     1:1 with Figma; below, it is the same picture, smaller.
+
+     --vh is the height available *in design pixels*, i.e. after undoing
+     the zoom, so every measurement downstream stays in Figma's units. */
   --testbar: 42px;
-  --vh: calc(100svh - var(--testbar));
+  --zoom: min(1, calc(100vw / 1280px));
+  --vh: calc((100svh - var(--testbar)) / var(--zoom));
+  --testbar-inside: calc(var(--testbar) / var(--zoom));
 
   /* Accordion geometry */
-  /* Accordion — all Figma measurements from the open-state frame:
-     headline 72 tall on a 144 rhythm, teaser panel 568, grey block
-     starting 32 above the active headline, 34 of air after it.        */
+  /* ── Accordion: liquid, but on Figma's own proportions ──────────────
+     The open state in Figma measures 4×144 + 72 + 568 + 34 = 1250px
+     tall. That does not fit a laptop, so every measurement below is
+     that same fraction of the height actually available — and capped at
+     the Figma value, so a tall display gets the design 1:1 and nothing
+     is ever larger than drawn.
+
+     Ratios (of 1250):  line .0576   gap .0576   gap-open .0272
+                        grey-lead .0256   panel .4544   type .0512
+
+     This is a scale, not a breakpoint: no measurement is re-invented for
+     small screens, so the design keeps the proportions your designer
+     drew instead of ones I made up.                                   */
   --rows: 5;
-  --row-line: 72px;                         /* the headline line box    */
-  --row-gap: 72px;                          /* air below a closed row   */
-  --row-gap-open: 34px;                     /* air below the open one   */
-  --grey-lead: 32px;                        /* grey block above the row */
-  --panel-h: 568px;
+  /* Content keeps a readable floor and Figma's value as its ceiling… */
+  --row-line:     clamp( 30px, calc(var(--vh) * .0576),  72px);
+  --row-gap-open: clamp(  8px, calc(var(--vh) * .0272),  34px);
+  --grey-lead:    clamp(  8px, calc(var(--vh) * .0256),  32px);
+  --panel-h:      clamp(260px, calc(var(--vh) * .4544), 568px);
+  --fs-row:       clamp( 20px, calc(var(--vh) * .0512),  64px);
+  --lh-row: var(--row-line);
+  /* …and the air takes whatever is left over. On a display tall enough
+     this resolves to exactly 72px — Figma's own value — and on a laptop
+     the spacing gives way before the type does. */
+  --row-gap: clamp(8px, calc((var(--vh) - 5 * var(--row-line)
+                              - var(--panel-h) - var(--row-gap-open)) / 4), 72px);
   --copy-w: 488px;                          /* the text column          */
   --peek-h: clamp(96px, 12vh, 128px);
 }
 
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
+.canvas{ zoom:var(--zoom) }
+
 body{
   margin:0;padding-top:var(--testbar); font-family:var(--font); color:var(--text-primary);
   background:var(--surface-secondary); -webkit-font-smoothing:antialiased;
@@ -210,7 +239,7 @@ ul{margin:0;padding:0;list-style:none}
 .acc__title{
   position:relative;display:flex;align-items:center;justify-content:center;
   width:var(--wrap);height:var(--row-line);margin:0 auto;
-  font-size:var(--fs-title);line-height:var(--lh-title);font-weight:var(--fw-title);
+  font-size:var(--fs-row);line-height:var(--lh-row);font-weight:var(--fw-title);
   letter-spacing:0;cursor:pointer;user-select:none;
   color:var(--gradient-light);
   color:color-mix(in oklab, var(--text-brand) calc(var(--hot) * 100%), var(--gradient-light));
@@ -224,7 +253,11 @@ ul{margin:0;padding:0;list-style:none}
 
 /* ── Panel ───────────────────────────────────────────────────────────── */
 .acc__panel{
-  height:calc(var(--peek) * var(--peek-h) + var(--open) * (var(--panel-h) - var(--peek-h)));
+  /* --peek and --open are mutually exclusive by construction (variant 3
+     retracts the summary as the teaser comes out), so the two terms add
+     up cleanly. Subtracting --peek-h here made every variant's panel
+     96px short of the design. */
+  height:calc(var(--peek) * var(--peek-h) + var(--open) * var(--panel-h));
   overflow:hidden;contain:layout paint;
 }
 .panel{
@@ -233,29 +266,32 @@ ul{margin:0;padding:0;list-style:none}
 }
 /* Copy column: 488 wide at x136, starting 64 below the headline. */
 .panel__copy{
-  position:absolute;left:var(--gutter);top:64px;width:var(--copy-w);
+  position:absolute;left:var(--gutter);width:var(--copy-w);
+  top:clamp(20px, calc(var(--vh) * .0512), 64px);
   opacity:clamp(0, calc(var(--open) * 3 - 2), 1);
   translate:0 calc(var(--vel) * .3);
 }
 .panel__brand{
-  display:flex;align-items:center;gap:6px;margin:0;height:32px;
-  font-size:var(--fs-h3);line-height:var(--lh-h3);font-weight:700;color:var(--text-brand);
+  display:flex;align-items:center;gap:6px;margin:0;
+  font-size:clamp(16px, calc(var(--vh) * .0192), 24px);line-height:1.33;font-weight:700;color:var(--text-brand);
 }
 .panel__brand .is-light{font-weight:400}
 .panel__product{
-  margin:12px 0 0;height:56px;
-  font-size:var(--fs-h1);line-height:var(--lh-h1);font-weight:var(--fw-h1);
+  margin:12px 0 0;
+  font-size:clamp(28px, calc(var(--vh) * .0384), 48px);line-height:1.17;font-weight:var(--fw-h1);
   color:var(--text-primary);letter-spacing:0;
 }
 .panel__lead{
-  margin:24px 0 0;width:var(--copy-w);
+  margin:min(24px, calc(var(--vh) * .0192)) 0 0;width:var(--copy-w);
   font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text-primary);
 }
 .panel__note{
-  margin:24px 0 0;width:var(--copy-w);
+  margin:min(24px, calc(var(--vh) * .0192)) 0 0;width:var(--copy-w);
   font-size:var(--fs-body-sm);line-height:var(--lh-body-sm);color:var(--text-secondary);
 }
-.panel__copy .btn{ margin-top:24px;height:40px;padding:8px 24px }
+.panel__copy .btn{ margin-top:clamp(10px, calc(var(--vh) * .0192), 24px);
+  height:clamp(34px, calc(var(--vh) * .032), 40px);padding:0 24px;
+  font-size:clamp(14px, calc(var(--vh) * .0128), 16px) }
 
 /* Artwork fills from the copy column's right edge to the canvas edge. */
 .panel__media{
@@ -280,16 +316,17 @@ ul{margin:0;padding:0;list-style:none}
 /* Chat bubbles: Figma's Input-Default, 351×56 with a 48px icon. */
 .bubble{
   position:absolute;display:inline-flex;align-items:center;gap:16px;
-  width:351px;height:56px;padding:4px 12px;
+  width:clamp(240px, calc(var(--vh) * .2808), 351px);
+  height:clamp(40px, calc(var(--vh) * .0448), 56px);padding:4px 12px;
   border-radius:50px;background:var(--surface-secondary);
-  font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text-primary);
-  box-shadow:var(--shadow-card);
+  font-size:clamp(12px, calc(var(--vh) * .0128), 16px);line-height:1.4;
+  color:var(--text-primary);box-shadow:var(--shadow-card);
   opacity:clamp(0, calc(var(--open) * 5 - 4), 1);
   translate:0 calc(var(--vel) * .5);
 }
-.bubble svg{width:48px;height:48px;color:var(--text-highlight);flex:none}
-.bubble--a{left:730px;top:353px}
-.bubble--b{left:626px;top:433px}
+.bubble svg{width:clamp(28px, calc(var(--vh) * .0384), 48px);height:auto;aspect-ratio:1;color:var(--text-highlight);flex:none}
+.bubble--a{right:63px;top:58%}
+.bubble--b{right:167px;top:74%}
 
 /* ── Peek row (variant 3) ────────────────────────────────────────────── */
 @property --peek{ syntax:'<number>'; inherits:true; initial-value:0; }
@@ -309,6 +346,25 @@ ul{margin:0;padding:0;list-style:none}
   font-size:var(--fs-body-sm);font-weight:700;color:var(--btn-primary);
 }
 .acc__peek-more svg{ rotate:90deg }
+
+/* ── Stage per variant ───────────────────────────────────────────────
+   Variant 1 pins a stage for the length of a long scroll track; 2 and 3
+   hold a single stage in place. All heights are in design pixels, i.e.
+   already divided back out of the canvas zoom.                       */
+.acc__stage{ display:grid;align-content:center;overflow:hidden }
+
+[data-variant="scroll"] .acc__track{ height:calc(var(--rows) * var(--vh) * 1.05) }
+[data-variant="scroll"] .acc__stage{
+  position:sticky;top:var(--testbar-inside);height:var(--vh);
+}
+/* Variant 1 always has a teaser out, so its rows never sit in the airy
+   idle spacing the pointer variants start from. */
+[data-variant="scroll"] .acc__list{ --amt:1 }
+
+[data-variant="hover"] .acc__track,
+[data-variant="preview"] .acc__track{ height:auto }
+[data-variant="hover"] .acc__stage,
+[data-variant="preview"] .acc__stage{ position:relative;height:var(--vh) }
 
 /* ── People ──────────────────────────────────────────────────────────── */
 .people{

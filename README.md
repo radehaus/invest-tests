@@ -11,6 +11,7 @@ Browser über `localStorage`, gilt für alle drei).
 | `?v=scroll`  | 1 · Scroll             | Die Scrollposition wählt den offenen Teaser |
 | `?v=hover`   | 2 · Mouseover          | Der Mauszeiger wählt ihn |
 | `?v=preview` | 3 · Mouseover + Klick  | Mouseover zeigt einen Kurztext, Klick öffnet den Teaser |
+| `?v=list`    | 4 · Alle offen         | Nichts klappt — fünf offene Teaser, Effekte beim Scrollen |
 
 ## Eine Seite, drei Varianten
 
@@ -31,6 +32,34 @@ Nachbarn teilen sich immer die Strecke, `open(i) + open(i+1)` ist während
 einer Übergabe konstant 1: zu jedem Zeitpunkt genau eine Teaserhöhe im
 Layout, also nie ein Sprung.
 
+## Variante 4 — die einzige ohne Feder
+
+Hier klappt nichts, es gibt also kein Ziel, auf das eine Feder zulaufen
+könnte, und keine Trägheit zu modellieren. Genau dafür sind **native CSS
+Scroll-Driven Animations** gemacht: der komplette Effekt läuft ohne eine
+Zeile JavaScript, jeder Teaser trägt seine eigene Zeitachse.
+
+    .acc__item      { view-timeline: --teaser block }
+    .panel__copy>*  { animation-timeline: --teaser }
+
+Die Zeitachse wird **benannt und vererbt**, nicht als `view()` pro Element
+gesetzt. Sonst bekäme jedes Element eine eigene Achse, abgeleitet davon, wo
+*es* im Viewport steht — Button und Bubbles sitzen am tiefsten und blendeten
+noch ein, während der Teaser längst mittig steht.
+
+Drei bewusst leise Effekte:
+
+* Das Foto driftet gegen die Scrollrichtung (±5,5 %) und wird zur Mitte hin
+  von 55 % auf volle Deckung heller.
+* Text und Bubbles steigen um 24 px auf, halten, und senken sich beim
+  Hinausscrollen wieder ab — gestaffelt in Schritten von 3 %, gerade genug,
+  dass es als eine Bewegung liest statt als fünf gleichzeitig schaltende Dinge.
+* Die Überschrift des mittigen Teasers vertieft sich von Hellblau nach
+  Allianz-Dunkelblau.
+
+Browser ohne Scroll-Driven Animations bekommen dieselbe Einblendung einmalig
+über einen `IntersectionObserver` (~12 Zeilen in `accordion.js`).
+
 ## Das Gefühl pro Variante
 
 In `assets/js/accordion.js`, Objekt `FEEL`:
@@ -40,6 +69,7 @@ In `assets/js/accordion.js`, Objekt `FEEL`:
 | scroll   | 32        | 1.35  | ~1,0 s — schwer, mit Nachlauf |
 | hover    | 210       | 0.7   | ~0,3 s |
 | preview  | 230 / 260 | 0.65  | ~0,3 s |
+| list     | —         | —     | keine Feder, reines CSS |
 
 Alle kritisch gedämpft: sie kommen zur Ruhe, ohne nachzuwackeln. `--vel`
 (vorzeichenbehaftet) lässt Bild, Text und Bubbles unterschiedlich weit

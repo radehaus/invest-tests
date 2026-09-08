@@ -13,7 +13,7 @@
   // Both before first paint: which prototype, and whether it is unlocked.
   (function(){
     var v = (new URLSearchParams(location.search).get('v') || 'scroll').toLowerCase();
-    if (['scroll','hover','preview'].indexOf(v) < 0) v = 'scroll';
+    if (['scroll','hover','preview','list'].indexOf(v) < 0) v = 'scroll';
     document.documentElement.dataset.variant = v;
     if (localStorage.getItem('ai-unlocked') !== 'yes')
       document.documentElement.classList.add('locked');
@@ -57,6 +57,7 @@
   <a class="testbar__link" href="?v=scroll"  data-v="scroll">1 · Scroll</a>
   <a class="testbar__link" href="?v=hover"   data-v="hover">2 · Mouseover</a>
   <a class="testbar__link" href="?v=preview" data-v="preview">3 · Mouseover + Klick</a>
+  <a class="testbar__link" href="?v=list"    data-v="list">4 · Alle offen</a>
 </nav>
 
 <!-- ══ SVG sprite ══════════════════════════════════════════════════════ -->

@@ -285,7 +285,7 @@ ul{margin:0;padding:0;list-style:none}
   padding:10px 20px;border-radius:999px;background:#fff;
   font-size:clamp(12px,.95vw,13.5px);color:var(--ink);
   box-shadow:0 4px 20px rgba(0,55,129,.14);
-  opacity:clamp(0, calc(var(--open) * 4 - 3.2), 1);
+  opacity:clamp(0, calc(var(--open) * 5 - 4), 1);
   translate:0 calc(var(--vel) * .5);
 }
 .bubble svg{color:var(--blue-600);flex:none}
@@ -401,4 +401,104 @@ ul{margin:0;padding:0;list-style:none}
 @media (max-width:640px){
   .testbar__label{ display:none }
   .testbar{ justify-content:center;font-size:11.5px }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VARIANT 4 · Everything open
+   ───────────────────────────────────────────────────────────────────────
+   No accordion at all: five teasers stacked as a plain list. Nothing
+   folds, so nothing needs a spring — and with no inertia to model, this
+   is the one variant that wants native CSS scroll-driven animation. The
+   whole effect below runs on the compositor with no JavaScript at all:
+   each teaser carries its own `view()` timeline, so its artwork and copy
+   respond to where *it* is in the viewport.
+
+   Kept deliberately quiet — a slow parallax, a breath of opacity, a
+   short rise on the text. It should register as depth, not as an effect.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+[data-variant="list"] .acc__track{ height:auto }
+[data-variant="list"] .acc__stage{
+  position:static;height:auto;display:block;overflow:visible;
+  padding:8px 0 40px;background:var(--paper);
+}
+[data-variant="list"] .acc__list{ --amt:1 }
+[data-variant="list"] .acc__item{
+  --open:1;                       /* permanently out — nothing to fold */
+  margin-bottom:10px;
+  /* One timeline per teaser, named so its children can share it. Bare
+     view() would give every element its own timeline based on where
+     *it* sits, which staggers by accident of position: the button and
+     the bubbles, sitting lowest, would still be fading in while the
+     teaser is already centred. */
+  view-timeline:--teaser block;
+}
+[data-variant="list"] .acc__title{
+  height:var(--row-h-open);
+  font-size:var(--fs-row-open);
+  cursor:default;
+}
+[data-variant="list"] .acc__arrow{ display:none }
+[data-variant="list"] .acc__panel{ height:var(--panel-h) }
+
+@media (prefers-reduced-motion: no-preference){
+  /* Artwork: drifts against the scroll and brightens as it passes. */
+  [data-variant="list"] .panel__media img{
+    animation:v4-art linear both;
+    animation-timeline:--teaser;
+    animation-range:cover 0% cover 100%;
+  }
+  @keyframes v4-art{
+    0%   { opacity:.55; translate:0 -5.5%; }
+    48%  { opacity:1;   translate:0 0;     }
+    100% { opacity:.55; translate:0 5.5%;  }
+  }
+
+  /* Copy: rises in, holds, settles back out. One animation across the
+     whole range rather than two overlapping ones, so nothing fights
+     over opacity at the edges. */
+  [data-variant="list"] .panel__copy > *,
+  [data-variant="list"] .bubble{
+    animation:v4-copy linear both;
+    animation-timeline:--teaser;
+    animation-range:cover 4% cover 100%;
+  }
+  @keyframes v4-copy{
+    0%   { opacity:0;   translate:0 24px }
+    28%  { opacity:1;   translate:0 0    }
+    72%  { opacity:1;   translate:0 0    }
+    100% { opacity:.1;  translate:0 -18px }
+  }
+  /* A few percent of stagger is all it takes to read as one movement
+     rather than five things switching on together. */
+  [data-variant="list"] .panel__copy > *:nth-child(2){ animation-range:cover 7%  cover 100% }
+  [data-variant="list"] .panel__copy > *:nth-child(3){ animation-range:cover 10% cover 100% }
+  [data-variant="list"] .panel__copy > *:nth-child(4){ animation-range:cover 13% cover 100% }
+  [data-variant="list"] .panel__copy > *:nth-child(5){ animation-range:cover 16% cover 100% }
+  [data-variant="list"] .bubble--a{ animation-range:cover 20% cover 100% }
+  [data-variant="list"] .bubble--b{ animation-range:cover 24% cover 100% }
+
+  /* The headline of whichever teaser is centred deepens in colour. */
+  [data-variant="list"] .acc__title{
+    animation:v4-focus linear both;
+    animation-timeline:--teaser;
+    animation-range:cover 15% cover 85%;
+  }
+  @keyframes v4-focus{
+    0%   { color:var(--blue-400) }
+    50%  { color:var(--blue-900) }
+    100% { color:var(--blue-400) }
+  }
+}
+
+/* Fallback for browsers without scroll-driven animation: the same
+   entrance, triggered once by an observer instead of tracked live. */
+[data-variant="list"].no-view-timeline .panel__copy > *,
+[data-variant="list"].no-view-timeline .bubble{
+  opacity:0;translate:0 24px;
+  transition:opacity .5s ease, translate .5s cubic-bezier(.2,.7,.3,1);
+}
+[data-variant="list"].no-view-timeline .acc__item.in-view .panel__copy > *,
+[data-variant="list"].no-view-timeline .acc__item.in-view .bubble{
+  opacity:1;translate:0 0;
 }

@@ -4,6 +4,7 @@
      ?v=scroll    scroll position picks the open teaser
      ?v=hover     the pointer picks it
      ?v=preview   the pointer shows a summary, a click opens the teaser
+     ?v=list      nothing folds — five open teasers, scroll-driven polish
 
    All three write the same two custom properties per row and share one
    spring, so what differs between them is only what drives the target —
@@ -26,6 +27,24 @@
 
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.add('acc-static');
+    return;
+  }
+
+  /* ═════ 4 · Everything open ══════════════════════════════════════════
+     Nothing folds here, so there is no target to spring toward and no
+     work for this file to do: the movement is native CSS scroll-driven
+     animation, running off each teaser's own view() timeline. All that
+     is left is an entrance for browsers that cannot do that yet.     */
+  if (variant === 'list') {
+    if (CSS.supports('animation-timeline', 'view()')) return;
+
+    document.documentElement.classList.add('no-view-timeline');
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
+      }
+    }, { rootMargin: '0px 0px -12% 0px' });
+    items.forEach(el => io.observe(el));
     return;
   }
 

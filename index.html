@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allianz Invest — Prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<!-- Gate: locks the page before first paint, so nothing flashes up. -->
+<script>
+  // Both before first paint: which prototype, and whether it is unlocked.
+  (function(){
+    var v = (new URLSearchParams(location.search).get('v') || 'scroll').toLowerCase();
+    if (['scroll','hover','preview'].indexOf(v) < 0) v = 'scroll';
+    document.documentElement.dataset.variant = v;
+    if (localStorage.getItem('ai-unlocked') !== 'yes')
+      document.documentElement.classList.add('locked');
+  })();
+</script>
+<style>
+  #gate{display:none}
+  .locked #gate{display:grid}
+  .locked body>*:not(#gate){display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ══ Password gate ═══════════════════════════════════════════════════
+     This keeps casual visitors out and nothing more. The page source and
+     every image stay readable to anyone who opens devtools or requests a
+     file directly — GitHub Pages has no server to check a password on.
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="gate">
+  <form class="gate__card" id="gate-form" autocomplete="off">
+    <p class="gate__logo">
+      <span class="logo__word">Allianz</span>
+      <svg width="24" height="24" aria-hidden="true" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="2"/>
+        <rect x="7" y="9" width="2.2" height="9" fill="currentColor"/>
+        <rect x="10.9" y="6" width="2.2" height="12" fill="currentColor"/>
+        <rect x="14.8" y="9" width="2.2" height="9" fill="currentColor"/>
+      </svg>
+      <span class="logo__word logo__word--light">In<span class="logo__v">v</span>est</span>
+    </p>
+    <p class="gate__hint">Prototype — please enter the password.</p>
+    <input class="gate__input" id="gate-input" type="password" placeholder="Password" aria-label="Password" autofocus>
+    <button class="btn btn--primary gate__btn" type="submit">Enter</button>
+    <p class="gate__error" id="gate-error" hidden>Not quite — try again.</p>
+  </form>
+</div>
+
+<!-- ══ Prototype switcher ══════════════════════════════════════════════ -->
+<nav class="testbar" aria-label="Prototype versions">
+  <span class="testbar__label">Allianz Invest — Prototypes</span>
+  <a class="testbar__link" href="?v=scroll"  data-v="scroll">1 · Scroll</a>
+  <a class="testbar__link" href="?v=hover"   data-v="hover">2 · Mouseover</a>
+  <a class="testbar__link" href="?v=preview" data-v="preview">3 · Mouseover + Klick</a>
+</nav>
+
+<!-- ══ SVG sprite ══════════════════════════════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-allianz" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="2"/>
+    <rect x="7"  y="9"  width="2.2" height="9" fill="currentColor"/>
+    <rect x="10.9" y="6" width="2.2" height="12" fill="currentColor"/>
+    <rect x="14.8" y="9" width="2.2" height="9" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24">
+    <path d="M11 2.5c.3 3.9 2.6 6.2 6.5 6.5-3.9.3-6.2 2.6-6.5 6.5-.3-3.9-2.6-6.2-6.5-6.5 3.9-.3 6.2-2.6 6.5-6.5Z" fill="currentColor"/>
+    <path d="M18.5 14c.15 2 1.35 3.2 3.35 3.35-2 .15-3.2 1.35-3.35 3.35-.15-2-1.35-3.2-3.35-3.35 2-.15 3.2-1.35 3.35-3.35Z" fill="currentColor" opacity=".85"/>
+  </symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24">
+    <path d="M12 20V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<!-- ══ Header ══════════════════════════════════════════════════════════ -->
+<div class="utility">
+  <nav class="utility__nav" aria-label="Sections">
+    <a href="#" class="is-active">Allianz Invest</a>
+    <a href="#">AI mode</a>
+    <a href="#solutions">Guarantee</a>
+    <a href="#solutions">Wealth</a>
+    <a href="#solutions">Retirement</a>
+    <a href="#solutions">Protect</a>
+    <a href="#solutions">Kids</a>
+  </nav>
+  <div class="utility__lang"><a href="#" class="is-active">EN</a><span>|</span><a href="#">NL</a></div>
+</div>
+
+<header class="masthead">
+  <a class="logo" href="#">
+    <span class="logo__word">Allianz</span>
+    <svg class="logo__mark" width="26" height="26" aria-hidden="true"><use href="#i-allianz"/></svg>
+    <span class="logo__word logo__word--light">In<span class="logo__v">v</span>est</span>
+  </a>
+  <div class="masthead__actions">
+    <a class="btn btn--ghost" href="#">Login</a>
+    <a class="btn btn--primary" href="#">Open Account</a>
+  </div>
+</header>
+
+<!-- ══ Stage / Hero ════════════════════════════════════════════════════ -->
+<section class="stage">
+  <svg class="stage__watermark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-allianz"/></svg>
+  <h1 class="stage__title">
+    One platform for all<br>your financial needs.<br>
+    <span class="stage__title--strong">What’s your goal?</span>
+  </h1>
+  <form class="prompt" role="search" onsubmit="return false">
+    <svg class="prompt__icon" width="22" height="22" aria-hidden="true"><use href="#i-spark"/></svg>
+    <input class="prompt__input" type="text" placeholder="I’d like to stop working at 60 without cutting back?" aria-label="What is your goal?">
+  </form>
+</section>
+
+<section class="facts">
+  <div class="facts__inner">
+    <div class="fact"><p class="fact__label">Based on the<br>global experience of</p>
+      <svg class="fact__mark" width="34" height="34" aria-hidden="true"><use href="#i-allianz"/></svg></div>
+    <div class="fact"><p class="fact__big">€ 2,8</p><p class="fact__label">trillion assets under<br>management worldwide</p></div>
+    <div class="fact"><p class="fact__big">128</p><p class="fact__label">million<br>customers worldwide</p></div>
+  </div>
+</section>
+
+<!-- ══ Scroll accordion ════════════════════════════════════════════════ -->
+<section class="acc" id="solutions">
+  <div class="acc__track">
+    <div class="acc__stage">
+      <ul class="acc__list">
+
+        <li class="acc__item">
+          <h2 class="acc__title">Insurance-based investing<svg class="acc__arrow" width="24" height="24" aria-hidden="true"><use href="#i-arrow-up"/></svg></h2>
+          <p class="acc__peek">Take part in the markets without putting your foundation at risk — with tax advantages and an income that can last for life.<span class="acc__peek-more">Read more<svg width="15" height="15" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></p>
+          <div class="acc__panel">
+            <div class="panel">
+              <div class="panel__copy">
+                <p class="panel__brand"><span>Allianz</span><svg width="20" height="20" aria-hidden="true"><use href="#i-allianz"/></svg><span class="is-light">Invest</span></p>
+                <p class="panel__product">Guarantee</p>
+                <p class="panel__lead">Take part in the markets without putting your foundation at risk with Allianz Invest Guarantee.</p>
+                <p class="panel__note">A high degree of safety, attractive tax treatment, and the option of an income that lasts for life.</p>
+                <a class="btn btn--primary" href="#">Learn More</a>
+              </div>
+              <div class="panel__media">
+                <img src="assets/img/lighthouse.jpg" alt="Lighthouse in heavy seas" loading="lazy">
+                <span class="bubble bubble--a"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>What happens to my money if the markets fall?</span>
+                <span class="bubble bubble--b"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>How does the guarantee work?</span>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="acc__item">
+          <h2 class="acc__title">Wealth management<svg class="acc__arrow" width="24" height="24" aria-hidden="true"><use href="#i-arrow-up"/></svg></h2>
+          <p class="acc__peek">Portfolios built to institutional standards, managed and adjusted for you by Allianz Global Investors.<span class="acc__peek-more">Read more<svg width="15" height="15" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></p>
+          <div class="acc__panel">
+            <div class="panel">
+              <div class="panel__copy">
+                <p class="panel__brand"><span>Allianz</span><svg width="20" height="20" aria-hidden="true"><use href="#i-allianz"/></svg><span class="is-light">Invest</span></p>
+                <p class="panel__product">Wealth</p>
+                <p class="panel__lead">Allianz Invest Wealth gives you access to portfolios built to institutional standards, managed and adjusted for you by Allianz Global Investors.</p>
+                <p class="panel__note">Choose a portfolio that fits you, invest in asset classes and at conditions normally reserved for institutional investors, and stay flexible throughout.</p>
+                <a class="btn btn--primary" href="#">Learn More</a>
+              </div>
+              <div class="panel__media">
+                <img src="assets/img/icebreaker.jpg" alt="Icebreaker cutting through pack ice" loading="lazy">
+                <span class="bubble bubble--a"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>Which strategy should I choose?</span>
+                <span class="bubble bubble--b"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>How is my money managed by Allianz Global Investors?</span>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="acc__item">
+          <h2 class="acc__title">State-subsidized retirement<svg class="acc__arrow" width="24" height="24" aria-hidden="true"><use href="#i-arrow-up"/></svg></h2>
+          <p class="acc__peek">Build a pension the state pays into alongside you, with the tax advantages doing part of the work.<span class="acc__peek-more">Read more<svg width="15" height="15" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></p>
+          <div class="acc__panel">
+            <div class="panel">
+              <div class="panel__copy">
+                <p class="panel__brand"><span>Allianz</span><svg width="20" height="20" aria-hidden="true"><use href="#i-allianz"/></svg><span class="is-light">Invest</span></p>
+                <p class="panel__product">Retirement</p>
+                <p class="panel__lead">Build a pension with support from the state, and let tax advantages do part of the work for you.</p>
+                <p class="panel__note">Contributions are subsidized, growth is tax-deferred, and the payout is planned around the life you want.</p>
+                <a class="btn btn--primary" href="#">Learn More</a>
+              </div>
+              <div class="panel__media">
+                <img src="assets/img/hills.jpg" alt="Rolling hills at sunset" loading="lazy">
+                <span class="bubble bubble--a"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>How much does the state add?</span>
+                <span class="bubble bubble--b"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>When can I start drawing it?</span>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="acc__item">
+          <h2 class="acc__title">Term life protection<svg class="acc__arrow" width="24" height="24" aria-hidden="true"><use href="#i-arrow-up"/></svg></h2>
+          <p class="acc__peek">Cover for the people who depend on you, for exactly as long as they depend on you.<span class="acc__peek-more">Read more<svg width="15" height="15" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></p>
+          <div class="acc__panel">
+            <div class="panel">
+              <div class="panel__copy">
+                <p class="panel__brand"><span>Allianz</span><svg width="20" height="20" aria-hidden="true"><use href="#i-allianz"/></svg><span class="is-light">Invest</span></p>
+                <p class="panel__product">Protect</p>
+                <p class="panel__lead">Cover the people who depend on you, for exactly as long as they depend on you.</p>
+                <p class="panel__note">Straightforward term cover, priced transparently, adjustable when your life changes.</p>
+                <a class="btn btn--primary" href="#">Learn More</a>
+              </div>
+              <div class="panel__media panel__media--placeholder" data-note="Foto folgt">
+                <span class="bubble bubble--a"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>How much cover do I need?</span>
+                <span class="bubble bubble--b"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>What does it cost per month?</span>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="acc__item">
+          <h2 class="acc__title">Saving for your kids<svg class="acc__arrow" width="24" height="24" aria-hidden="true"><use href="#i-arrow-up"/></svg></h2>
+          <p class="acc__peek">Small monthly amounts and eighteen years of compounding, with full control when they turn 18.<span class="acc__peek-more">Read more<svg width="15" height="15" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></p>
+          <div class="acc__panel">
+            <div class="panel">
+              <div class="panel__copy">
+                <p class="panel__brand"><span>Allianz</span><svg width="20" height="20" aria-hidden="true"><use href="#i-allianz"/></svg><span class="is-light">Invest</span></p>
+                <p class="panel__product">Kids</p>
+                <p class="panel__lead">Start early, stay small, and let time do the heavy lifting for the next generation.</p>
+                <p class="panel__note">Flexible monthly amounts, a portfolio that grows up with them, and full control when they turn 18.</p>
+                <a class="btn btn--primary" href="#">Learn More</a>
+              </div>
+              <div class="panel__media">
+                <img src="assets/img/kid.jpg" alt="Child with cardboard wings running through a field" loading="lazy">
+                <span class="bubble bubble--a"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>What if I need the money earlier?</span>
+                <span class="bubble bubble--b"><svg width="18" height="18" aria-hidden="true"><use href="#i-spark"/></svg>Can grandparents pay in too?</span>
+              </div>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ People ══════════════════════════════════════════════════════════ -->
+<section class="people">
+  <h2 class="people__title">There is always a person<br>behind Allianz Invest.</h2>
+  <div class="cards">
+    <article class="card">
+      <h3>Join a live webinar</h3>
+      <p>Learn how our solutions work in live sessions with Allianz experts, and put your questions to them directly.</p>
+      <a class="btn btn--outline" href="#">Discover upcoming webinars</a>
+    </article>
+    <article class="card">
+      <h3>Questions? Speak to a person</h3>
+      <img class="card__avatars" src="assets/img/avatars.png" alt="" width="90">
+      <p>For anything more complex, a named advisor who takes the time your question actually needs, and who already knows what you have told us.</p>
+      <a class="btn btn--outline" href="#">Request a call back</a>
+    </article>
+  </div>
+</section>
+
+<!-- ══ Footer ══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <a class="logo" href="#">
+    <span class="logo__word">Allianz</span>
+    <svg class="logo__mark" width="24" height="24" aria-hidden="true"><use href="#i-allianz"/></svg>
+    <span class="logo__word logo__word--light">In<span class="logo__v">v</span>est</span>
+  </a>
+  <nav class="footer__links" aria-label="Footer">
+    <a href="#">Pension Guide</a><a href="#">Investment Guide</a><a href="#">For Employees</a>
+    <a href="#">For Entrepreneurs</a><a href="#">Already with Allianz</a><a href="#">Defer your Annuity</a>
+  </nav>
+  <div class="footer__news">
+    <p>Stay up-to-date with our newsletter.</p>
+    <form onsubmit="return false"><input type="email" placeholder="E-mail address" aria-label="E-mail address"></form>
+  </div>
+  <div class="footer__bottom">
+    <p>© 2026 Allianz. All rights reserved.</p>
+    <nav aria-label="Legal"><a href="#">Imprint</a><a href="#">Privacy policy</a></nav>
+  </div>
+</footer>
+
+<script src="assets/js/gate.js"></script>
+<script src="assets/js/accordion.js"></script>
+</body>
+</html>

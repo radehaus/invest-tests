@@ -69,17 +69,18 @@
      drew instead of ones I made up.                                   */
   --rows: 5;
   /* Content keeps a readable floor and Figma's value as its ceiling… */
-  --row-line:     clamp( 30px, calc(var(--vh) * .0576),  72px);
-  --row-gap-open: clamp(  8px, calc(var(--vh) * .0272),  34px);
-  --grey-lead:    clamp(  8px, calc(var(--vh) * .0256),  32px);
-  --panel-h:      clamp(260px, calc(var(--vh) * .4544), 568px);
+  --row-line:     clamp( 28px, calc(var(--vh) * .0576),  72px);
+  --row-gap:      clamp( 22px, calc(var(--vh) * .0576),  72px);
+  --row-gap-open: clamp( 10px, calc(var(--vh) * .0272),  34px);
+  --grey-lead:    clamp( 14px, calc(var(--vh) * .0256),  32px);
   --fs-row:       clamp( 20px, calc(var(--vh) * .0512),  64px);
   --lh-row: var(--row-line);
-  /* …and the air takes whatever is left over. On a display tall enough
-     this resolves to exactly 72px — Figma's own value — and on a laptop
-     the spacing gives way before the type does. */
-  --row-gap: clamp(8px, calc((var(--vh) - 5 * var(--row-line)
-                              - var(--panel-h) - var(--row-gap-open)) / 4), 72px);
+  --media-top:    clamp( 10px, calc(var(--vh) * .032),   40px);
+  /* The teaser takes what the rhythm leaves, not the other way round.
+     In Figma a row and the air below it are both 72 — the spacing IS the
+     grid, so it must not be the first thing to collapse. */
+  --panel-h: clamp(170px, calc(var(--vh) - 5 * var(--row-line)
+                              - 4 * var(--row-gap) - var(--row-gap-open)), 568px);
   --copy-w: 488px;                          /* the text column          */
   --peek-h: clamp(96px, 12vh, 128px);
 }
@@ -267,35 +268,38 @@ ul{margin:0;padding:0;list-style:none}
 /* Copy column: 488 wide at x136, starting 64 below the headline. */
 .panel__copy{
   position:absolute;left:var(--gutter);width:var(--copy-w);
-  top:clamp(20px, calc(var(--vh) * .0512), 64px);
+  top:clamp(12px, calc(var(--vh) * .0512), 64px);
   opacity:clamp(0, calc(var(--open) * 3 - 2), 1);
   translate:0 calc(var(--vel) * .3);
 }
 .panel__brand{
   display:flex;align-items:center;gap:6px;margin:0;
-  font-size:clamp(16px, calc(var(--vh) * .0192), 24px);line-height:1.33;font-weight:700;color:var(--text-brand);
+  font-size:clamp(14px, calc(var(--vh) * .0192), 24px);line-height:1.33;font-weight:700;color:var(--text-brand);
 }
 .panel__brand .is-light{font-weight:400}
 .panel__product{
-  margin:12px 0 0;
-  font-size:clamp(28px, calc(var(--vh) * .0384), 48px);line-height:1.17;font-weight:var(--fw-h1);
+  margin:clamp(6px, calc(var(--vh) * .0096), 12px) 0 0;
+  font-size:clamp(24px, calc(var(--vh) * .0384), 48px);line-height:1.17;font-weight:var(--fw-h1);
   color:var(--text-primary);letter-spacing:0;
 }
 .panel__lead{
-  margin:min(24px, calc(var(--vh) * .0192)) 0 0;width:var(--copy-w);
-  font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text-primary);
+  margin:clamp(8px, calc(var(--vh) * .0192), 24px) 0 0;width:var(--copy-w);
+  font-size:clamp(13px, calc(var(--vh) * .0128), 16px);line-height:1.5;
+  color:var(--text-primary);
 }
 .panel__note{
-  margin:min(24px, calc(var(--vh) * .0192)) 0 0;width:var(--copy-w);
-  font-size:var(--fs-body-sm);line-height:var(--lh-body-sm);color:var(--text-secondary);
+  margin:clamp(8px, calc(var(--vh) * .0192), 24px) 0 0;width:var(--copy-w);
+  font-size:clamp(11px, calc(var(--vh) * .0112), 14px);line-height:1.6;
+  color:var(--text-secondary);
 }
-.panel__copy .btn{ margin-top:clamp(10px, calc(var(--vh) * .0192), 24px);
-  height:clamp(34px, calc(var(--vh) * .032), 40px);padding:0 24px;
+.panel__copy .btn{ margin-top:clamp(8px, calc(var(--vh) * .0192), 24px);
+  height:clamp(30px, calc(var(--vh) * .032), 40px);padding:0 24px;
   font-size:clamp(14px, calc(var(--vh) * .0128), 16px) }
 
 /* Artwork fills from the copy column's right edge to the canvas edge. */
 .panel__media{
-  position:absolute;left:calc(var(--gutter) + var(--copy-w));top:0;right:0;height:100%;
+  position:absolute;left:calc(var(--gutter) + var(--copy-w));right:0;
+  top:var(--media-top);height:calc(100% - var(--media-top));
   overflow:hidden;
   opacity:clamp(0, calc(var(--open) * 2.4 - .5), 1);
 }

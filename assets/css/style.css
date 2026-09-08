@@ -1,53 +1,67 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   Allianz Invest — local prototype
-   ═══════════════════════════════════════════════════════════════════════ */
-
 :root{
-  --blue-900:#003781;      /* Allianz dark blue          */
-  --blue-600:#1A5FB4;
-  --blue-400:#5C92D6;      /* closed headline            */
-  --blue-100:#DCE9F5;
-  --orange:#F26100;        /* Allianz accent             */
-  --ink:#1A1E28;
-  --ink-60:#5A6472;
-  --paper:#FFFFFF;
-  --grey-50:#F7F9FA;
-  --grey-100:#F0F2F4;      /* open panel background      */
-  --line:#E3E7EB;
+  /* ═══ Design tokens, pulled from Figma (Allvest2026) ═══════════════════
+     Names mirror the Figma variables so the two stay traceable.
+     Source: file BWX3HdWXFRh9I4N7IljhLr — do not hand-tune these; change
+     them in Figma and re-pull.                                          */
 
-  --font: 'Allianz Neo','Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --wrap: 1160px;
+  /* Color/Text */
+  --text-primary:#414141;
+  --text-secondary:#999999;
+  --text-brand:#003781;
+  --text-highlight:#007ab3;
+  --text-disabled:#96938f;
+  /* Color/Surface */
+  --surface-default:#f9f9f9;
+  --surface-secondary:#ffffff;
+  --surface-accent-secondary:#dfeff2;
+  --surface-accent-primary:#006192;
+  /* Color/Button, Stroke, Gradient */
+  --btn-primary:#f86200;
+  --stroke-default:#cccccc;
+  --gradient-light:#5ca5cc;
+  --gradient-dark:#003781;
+  --radius-btn:4px;
+  --shadow-card:0 0 30px #00000014;
 
-  /* The switcher sits above everything, so every full-height calculation
-     works off the space it leaves rather than off 100svh. */
+  /* Typo — Allianz Neo is licensed, so Inter stands in for the prototype.
+     Sizes and line heights are the real ones.                           */
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --fs-hero:80px;   --lh-hero:72px;   --fw-hero:300;
+  --fs-title:64px;  --lh-title:72px;  --fw-title:300;
+  --fs-h1:48px;     --lh-h1:56px;     --fw-h1:300;
+  --fs-h3:24px;     --lh-h3:32px;     --fw-h3:400;
+  --fs-body:16px;   --lh-body:24px;
+  --fs-body-sm:14px;--lh-body-sm:24px;
+  --fs-body-xs:12px;--lh-body-xs:16px;
+
+  /* Layout — the design is a fixed 1280 canvas with a 1008 content column
+     inset by 136 either side. No breakpoints in this prototype.        */
+  --page:1280px;
+  --wrap:1008px;
+  --gutter:136px;
+
   --testbar: 42px;
   --vh: calc(100svh - var(--testbar));
 
-  /* Accordion geometry.
-     The open panel takes whatever the five row headers leave over, so a
-     teaser always fills the screen no matter the viewport.             */
+  /* Accordion geometry */
+  /* Accordion — all Figma measurements from the open-state frame:
+     headline 72 tall on a 144 rhythm, teaser panel 568, grey block
+     starting 32 above the active headline, 34 of air after it.        */
   --rows: 5;
-  --row-h-idle: clamp(58px, 8vh, 86px);     /* a row while all are shut */
-  /* Fallback only — accordion.js measures the longest summary and
-     overrides this, so nothing is ever clipped. */
-  --peek-h: clamp(96px, 12vh, 128px);       /* the summary line, variant 3 */
-  --row-h: clamp(40px, 4.9vh, 56px);        /* a closed row, block open */
-  --row-h-open: clamp(52px, 6.5vh, 74px);   /* the active one, larger   */
-  --fs-row: clamp(21px, 2.25vw, 30px);      /* closed headline          */
-  --fs-row-open: clamp(24px, 2.75vw, 38px); /* active headline          */
-  /* Exactly one row is open at any time, so the header overhead is a
-     constant and the rest of the screen is the teaser's to claim.
-     --panel-fill is how much of that rest it actually takes: 1 = edge
-     to edge, lower leaves breathing room above and below the stage.   */
-  --panel-fill: .92;
-  --panel-h: calc((var(--vh) - 4 * var(--row-h) - var(--row-h-open)) * var(--panel-fill));
+  --row-line: 72px;                         /* the headline line box    */
+  --row-gap: 72px;                          /* air below a closed row   */
+  --row-gap-open: 34px;                     /* air below the open one   */
+  --grey-lead: 32px;                        /* grey block above the row */
+  --panel-h: 568px;
+  --copy-w: 488px;                          /* the text column          */
+  --peek-h: clamp(96px, 12vh, 128px);
 }
 
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;padding-top:var(--testbar); font-family:var(--font); color:var(--ink);
-  background:var(--paper); -webkit-font-smoothing:antialiased;
+  margin:0;padding-top:var(--testbar); font-family:var(--font); color:var(--text-primary);
+  background:var(--surface-secondary); -webkit-font-smoothing:antialiased;
   font-size:16px; line-height:1.5;
 }
 img{max-width:100%;display:block}
@@ -57,83 +71,110 @@ ul{margin:0;padding:0;list-style:none}
 /* ── Buttons ─────────────────────────────────────────────────────────── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  padding:.62em 1.15em;border-radius:3px;font-size:14px;font-weight:600;
+  padding:12px 24px;border-radius:var(--radius-btn);
+  font-size:var(--fs-body);line-height:var(--lh-body);font-weight:700;
   transition:background .18s ease,color .18s ease,border-color .18s ease;
   white-space:nowrap;
 }
-.btn--primary{background:var(--orange);color:#fff}
+.btn--primary{background:var(--btn-primary);color:#fff}
 .btn--primary:hover{background:#D95700}
-.btn--ghost{border:1px solid var(--orange);color:var(--orange)}
+.btn--ghost{border:1px solid var(--btn-primary);color:var(--btn-primary)}
 .btn--ghost:hover{background:#FFF3EC}
-.btn--outline{border:1px solid var(--orange);color:var(--orange);font-size:13px}
+.btn--outline{border:1px solid var(--btn-primary);color:var(--btn-primary);font-size:13px}
 .btn--outline:hover{background:#FFF3EC}
 
 /* ── Logo ────────────────────────────────────────────────────────────── */
-.logo{display:inline-flex;align-items:center;gap:6px;color:var(--blue-900)}
+.logo{display:inline-flex;align-items:center;gap:6px;color:var(--text-brand)}
 .logo__word{font-size:22px;font-weight:700;letter-spacing:-.01em}
 .logo__word--light{font-weight:400}
-.logo__v{color:var(--orange)}
-.logo__mark{color:var(--blue-900)}
+.logo__v{color:var(--btn-primary)}
+.logo__mark{color:var(--text-brand)}
 
 /* ── Header ──────────────────────────────────────────────────────────── */
 .utility{
   display:flex;align-items:center;justify-content:space-between;gap:24px;
   padding:11px max(24px,calc((100vw - var(--wrap))/2));
-  font-size:12.5px;color:var(--ink-60);border-bottom:1px solid var(--line);
+  font-size:12.5px;color:var(--text-secondary);border-bottom:1px solid var(--stroke-default);
 }
 .utility__nav{display:flex;gap:22px;flex-wrap:wrap}
-.utility__nav a:hover{color:var(--blue-900)}
-.utility a.is-active{color:var(--blue-900);border-bottom:1.5px solid var(--blue-900);padding-bottom:2px}
+.utility__nav a:hover{color:var(--text-brand)}
+.utility a.is-active{color:var(--text-brand);border-bottom:1.5px solid var(--text-brand);padding-bottom:2px}
 .utility__lang{display:flex;gap:8px;align-items:center}
 
 .masthead{
   display:flex;align-items:center;justify-content:space-between;
   padding:16px max(24px,calc((100vw - var(--wrap))/2));
-  background:var(--paper);
+  background:var(--surface-secondary);
 }
 .masthead__actions{display:flex;gap:10px}
 
-/* ── Stage / hero ────────────────────────────────────────────────────── */
+/* ── Stage / hero ────────────────────────────────────────────────────────
+   Absolute positioning is deliberate here: the design is a fixed canvas
+   with no breakpoints, so the layer coordinates are the layout.        */
 .stage{
-  position:relative;overflow:hidden;text-align:center;
-  padding:74px 24px 92px;
-  background:
-    radial-gradient(120% 90% at 18% 20%, #EFF5FB 0%, rgba(239,245,251,0) 60%),
-    radial-gradient(100% 80% at 82% 30%, #E8F1FA 0%, rgba(232,241,250,0) 62%),
-    linear-gradient(180deg,#F4F8FC 0%,#EEF4FA 100%);
+  position:relative;overflow:hidden;
+  width:var(--page);height:568px;margin:0 auto;
+  background:var(--surface-default);
 }
-.stage__watermark{
-  position:absolute;right:-2%;top:6%;width:min(360px,32vw);height:auto;
-  color:#DCE8F4;opacity:.75;pointer-events:none;
+/* The two soft discs. Figma draws each 524 box with a 924 SVG that
+   overhangs by 38.17% on every side — hence the offset. */
+.stage__glow{position:absolute;width:924px;height:924px;pointer-events:none}
+.stage__glow--a{left:-276px;top:-266px}
+.stage__glow--b{left:720px;top:-104px}
+.stage__mark{position:absolute;left:844px;top:138px;width:496px;height:496px;pointer-events:none}
+
+/* Both headlines are a single gradient fill, top-light to brand-dark —
+   not two flat colours. */
+.stage__title,.stage__goal{
+  /* The gradient only paints the padding box, so descenders fell outside
+     it and came out transparent. The padding gives them ground to stand
+     on; the top offset compensates so the baseline stays where Figma
+     put it. */
+  position:absolute;left:136px;width:var(--wrap);margin:0;
+  padding-block:24px;
+  font-size:var(--fs-hero);line-height:var(--lh-hero);font-weight:var(--fw-hero);
+  letter-spacing:0;text-align:center;
+  color:transparent;-webkit-background-clip:text;background-clip:text;
 }
 .stage__title{
-  position:relative;margin:0 0 34px;font-weight:400;line-height:1.14;
-  font-size:clamp(34px,4.2vw,54px);color:var(--blue-400);letter-spacing:-.015em;
+  top:72px;
+  background-image:linear-gradient(174.1deg, var(--gradient-light) 6.44%, var(--gradient-dark) 82.2%);
 }
-.stage__title--strong{color:var(--blue-900);display:inline-block;margin-top:.5em}
+.stage__goal{
+  top:248px;
+  background-image:linear-gradient(177.04deg, var(--gradient-light) 6.44%, var(--gradient-dark) 82.2%);
+}
 
 .prompt{
-  position:relative;display:flex;align-items:center;gap:12px;
-  width:min(620px,100%);margin:0 auto;padding:14px 22px;
-  background:#fff;border-radius:999px;box-shadow:0 2px 14px rgba(0,55,129,.08);
+  position:absolute;left:240px;top:408px;
+  display:flex;align-items:center;gap:8px;
+  width:800px;height:64px;padding:24px 16px;
+  background:var(--surface-secondary);
+  border:1px solid var(--stroke-default);border-radius:50px;
+  filter:drop-shadow(0 0 15px rgba(0,0,0,.08));
 }
-.prompt__icon{color:var(--blue-600);flex:none}
+.prompt__icon{width:48px;height:48px;flex:none}
 .prompt__input{
-  flex:1;border:0;outline:0;font:inherit;font-size:15px;color:var(--ink);
-  background:transparent;
+  flex:1;min-width:0;border:0;outline:0;background:transparent;
+  font-family:var(--font);font-size:var(--fs-h3);line-height:var(--lh-h3);
+  font-weight:var(--fw-h3);color:var(--text-primary);
 }
-.prompt__input::placeholder{color:#7A8697}
+.prompt__input::placeholder{color:var(--text-secondary)}
 
-/* ── Facts bar ───────────────────────────────────────────────────────── */
-.facts{background:#E3EFF7;padding:18px 24px}
-.facts__inner{
-  max-width:var(--wrap);margin:0 auto;display:flex;justify-content:center;
-  align-items:center;gap:clamp(28px,6vw,74px);flex-wrap:wrap;
+/* ── Facts bar ─────────────────────────────────────────────────────────── */
+.facts{
+  width:var(--page);height:88px;margin:0 auto;
+  background:var(--surface-accent-secondary);
+  display:grid;align-content:center;
 }
-.fact{display:flex;align-items:center;gap:12px;color:var(--blue-900)}
-.fact__label{margin:0;font-size:11.5px;font-weight:600;line-height:1.35}
+.facts__inner{
+  width:var(--wrap);margin:0 auto;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.fact{display:flex;align-items:center;gap:12px;color:var(--text-brand)}
+.fact__label{margin:0;font-size:var(--fs-body-xs);line-height:var(--lh-body-xs);font-weight:700}
 .fact:first-child .fact__label{text-align:right}
-.fact__big{margin:0;font-size:30px;font-weight:400;letter-spacing:-.01em}
+.fact__big{margin:0;font-size:var(--fs-h1);line-height:var(--lh-h1);font-weight:var(--fw-h1)}
 
 /* ═══════════════════════════════════════════════════════════════════════
    SCROLL ACCORDION
@@ -148,149 +189,126 @@ ul{margin:0;padding:0;list-style:none}
 @property --open{ syntax:'<number>'; inherits:true; initial-value:0; }
 @property --amt { syntax:'<number>'; inherits:true; initial-value:0; }
 
-.acc{ background:var(--paper) }
-/* Variant 1 pins a stage for the length of a long scroll track. */
-[data-variant="scroll"] .acc__track{ height:calc(5 * 105vh) }
-[data-variant="scroll"] .acc__stage{
-  position:sticky;top:var(--testbar);height:var(--vh);
-}
-/* Variants 2 and 3 hold one stage, sized to the tallest state it can
-   reach, so opening a teaser never pushes the rest of the page around —
-   only the block's inside moves. */
-[data-variant="hover"] .acc__track,
-[data-variant="preview"] .acc__track{ height:auto }
-[data-variant="hover"] .acc__stage,
-[data-variant="preview"] .acc__stage{
-  position:relative;
-  height:max(calc(4 * var(--row-h) + var(--row-h-open) + var(--panel-h)),
-             calc(5 * var(--row-h-idle)));
-  min-height:540px;
-}
-.acc__stage{ display:grid;align-content:center;overflow:hidden }
-/* Variant 1 always has a teaser out, so its rows never sit in the airy
-   idle spacing the pointer variants start from. */
-[data-variant="scroll"] .acc__list{ --amt:1 }
+.acc{ background:var(--surface-secondary);width:var(--page);margin:0 auto }
 .acc__list{ width:100%;margin:0 auto; --vel:0px; --speed:0; --amt:0 }
 
 .acc__item{
   position:relative;
-  /* "hot" = this is the row being addressed, whether that is the summary
-     of variant 3 or a fully open teaser. Highlight follows it. */
   --hot: max(var(--open), var(--peek));
+  /* 72 of air below a closed row, 34 below the open one — Figma's
+     rhythm, interpolated by --open like everything else. */
+  margin-bottom:calc(var(--row-gap) - var(--open) * (var(--row-gap) - var(--row-gap-open)));
 }
+/* The grey field starts 32px above the active headline and ends with
+   the panel. */
 .acc__item::before{
-  content:'';position:absolute;inset:0;
-  background:var(--grey-100);opacity:var(--open);pointer-events:none;
+  content:'';position:absolute;left:0;right:0;top:calc(-1 * var(--grey-lead));bottom:0;
+  background:var(--surface-default);opacity:var(--open);pointer-events:none;
 }
 
 /* ── Row header ──────────────────────────────────────────────────────── */
 .acc__title{
   position:relative;display:flex;align-items:center;justify-content:center;
-  margin:0;padding:0 clamp(24px,5vw,72px);
-  /* Three states in one line: airy while the block is shut, tight once
-     something is open, tallest on the row that is open.               */
-  height:calc(var(--row-h-idle)
-            + var(--amt) * (var(--row-h) - var(--row-h-idle))
-            + var(--hot) * (var(--row-h-open) - var(--row-h)));
-  font-size:calc(var(--fs-row) + var(--hot) * (var(--fs-row-open) - var(--fs-row)));
-  font-weight:400;letter-spacing:-.015em;
-  cursor:pointer;user-select:none;
-  color:var(--blue-400);
-  color:color-mix(in oklab, var(--blue-900) calc(var(--hot) * 100%), var(--blue-400));
-  /* the heading leans into the movement a touch before the panel does */
+  width:var(--wrap);height:var(--row-line);margin:0 auto;
+  font-size:var(--fs-title);line-height:var(--lh-title);font-weight:var(--fw-title);
+  letter-spacing:0;cursor:pointer;user-select:none;
+  color:var(--gradient-light);
+  color:color-mix(in oklab, var(--text-brand) calc(var(--hot) * 100%), var(--gradient-light));
   translate:0 calc(var(--vel) * .12);
 }
+/* Figma places the arrow at x949 of the 1008 column, 48×48. */
 .acc__arrow{
-  position:absolute;right:clamp(20px,3.4vw,48px);top:50%;translate:0 -50%;
-  color:var(--blue-900);opacity:var(--open);
+  position:absolute;right:11px;top:50%;translate:0 -50%;
+  width:48px;height:48px;color:var(--text-brand);opacity:var(--open);
 }
 
-/* ── Peek: the one-line summary of variant 3 ─────────────────────────── */
-@property --peek{ syntax:'<number>'; inherits:true; initial-value:0; }
-
-.acc__peek{ display:none }
-[data-variant="preview"] .acc__peek{
-  display:grid;align-content:center;justify-items:center;gap:10px;
-  height:calc(var(--peek) * var(--peek-h));
-  margin:0;padding:0 clamp(24px,6vw,90px);overflow:hidden;cursor:pointer;
-  font-size:clamp(14px,1.05vw,16px);line-height:1.55;text-align:center;
-  color:var(--ink-60);max-width:74ch;margin-inline:auto;
-  opacity:clamp(0, calc(var(--peek) * 2.4 - .5), 1);
-  translate:0 calc(var(--vel) * .25);
-}
-.acc__peek-more{
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:12.5px;font-weight:600;color:var(--orange);
-}
-.acc__peek-more svg{ rotate:90deg }
-
-/* ── Panel: height is a pure function of --open ──────────────────────── */
+/* ── Panel ───────────────────────────────────────────────────────────── */
 .acc__panel{
-  height:calc(var(--open) * var(--panel-h));
+  height:calc(var(--peek) * var(--peek-h) + var(--open) * (var(--panel-h) - var(--peek-h)));
   overflow:hidden;contain:layout paint;
 }
 .panel{
-  display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);
-  gap:clamp(28px,4.5vw,64px);align-items:center;
-  height:var(--panel-h);
-  padding-left:max(24px, calc((100vw - var(--wrap))/2));
-  padding-block:clamp(10px,1.7vh,24px);
-  /* Keep the content centred in the *visible* slot rather than pinned to
-     the top of a clipped box: it rides into place instead of being sliced,
-     and a half-open panel is never a sentence cut in half.             */
+  position:relative;width:var(--page);height:var(--panel-h);
   translate:0 calc((var(--open) - 1) * var(--panel-h) / 2);
 }
-/* Copy arrives last — only once the box has nearly finished moving. */
+/* Copy column: 488 wide at x136, starting 64 below the headline. */
 .panel__copy{
+  position:absolute;left:var(--gutter);top:64px;width:var(--copy-w);
   opacity:clamp(0, calc(var(--open) * 3 - 2), 1);
   translate:0 calc(var(--vel) * .3);
 }
-.panel__brand{display:flex;align-items:center;gap:6px;margin:0 0 8px;
-  font-size:clamp(16px,1.35vw,19px);font-weight:700;color:var(--blue-900)}
+.panel__brand{
+  display:flex;align-items:center;gap:6px;margin:0;height:32px;
+  font-size:var(--fs-h3);line-height:var(--lh-h3);font-weight:700;color:var(--text-brand);
+}
 .panel__brand .is-light{font-weight:400}
-.panel__product{margin:0 0 clamp(14px,2.4vh,28px);font-size:clamp(30px,3.3vw,46px);
-  font-weight:300;color:var(--ink);letter-spacing:-.015em;line-height:1.05}
-.panel__lead{margin:0 0 clamp(12px,1.8vh,20px);font-size:clamp(15.5px,1.2vw,18px);
-  line-height:1.55;max-width:38ch}
-.panel__note{margin:0 0 clamp(18px,2.6vh,30px);font-size:clamp(12.5px,.95vw,14px);
-  line-height:1.6;color:var(--ink-60);max-width:46ch}
-.panel__copy .btn{padding:.78em 1.5em;font-size:14.5px}
+.panel__product{
+  margin:12px 0 0;height:56px;
+  font-size:var(--fs-h1);line-height:var(--lh-h1);font-weight:var(--fw-h1);
+  color:var(--text-primary);letter-spacing:0;
+}
+.panel__lead{
+  margin:24px 0 0;width:var(--copy-w);
+  font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text-primary);
+}
+.panel__note{
+  margin:24px 0 0;width:var(--copy-w);
+  font-size:var(--fs-body-sm);line-height:var(--lh-body-sm);color:var(--text-secondary);
+}
+.panel__copy .btn{ margin-top:24px;height:40px;padding:8px 24px }
 
-/* Artwork bleeds off the right edge and drags behind the spring. */
+/* Artwork fills from the copy column's right edge to the canvas edge. */
 .panel__media{
-  position:relative;height:100%;overflow:hidden;border-radius:4px 0 0 4px;
-  /* Artwork leads the copy: the panel opens onto a picture, and the words
-     catch up. */
+  position:absolute;left:calc(var(--gutter) + var(--copy-w));top:0;right:0;height:100%;
+  overflow:hidden;
   opacity:clamp(0, calc(var(--open) * 2.4 - .5), 1);
 }
 .panel__media img{
   width:100%;height:100%;object-fit:cover;
-  /* Heaviest thing on screen: lags furthest behind and smears slightly
-     while the spring is travelling. Costs one composited layer. */
-  scale:1.07;
-  translate:0 calc(var(--vel) * 1);
+  scale:1.07;translate:0 calc(var(--vel) * 1);
   filter:blur(calc(var(--speed) * 2.4px));
 }
-/* Layer promotion costs memory, so it lasts only as long as the movement. */
 .acc__list.is-moving .panel__media img{ will-change:translate,filter }
 .panel__media--placeholder{
   background:linear-gradient(135deg,#E9F1F8 0%,#DCE9F3 45%,#F2F6FA 100%);
 }
 .panel__media--placeholder::after{
   content:attr(data-note);position:absolute;inset:auto 0 14px;text-align:center;
-  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9DB0C4;
+  font-size:var(--fs-body-xs);letter-spacing:.08em;text-transform:uppercase;color:#9DB0C4;
 }
+
+/* Chat bubbles: Figma's Input-Default, 351×56 with a 48px icon. */
 .bubble{
-  position:absolute;display:inline-flex;align-items:center;gap:9px;
-  padding:10px 20px;border-radius:999px;background:#fff;
-  font-size:clamp(12px,.95vw,13.5px);color:var(--ink);
-  box-shadow:0 4px 20px rgba(0,55,129,.14);
+  position:absolute;display:inline-flex;align-items:center;gap:16px;
+  width:351px;height:56px;padding:4px 12px;
+  border-radius:50px;background:var(--surface-secondary);
+  font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text-primary);
+  box-shadow:var(--shadow-card);
   opacity:clamp(0, calc(var(--open) * 5 - 4), 1);
   translate:0 calc(var(--vel) * .5);
 }
-.bubble svg{color:var(--blue-600);flex:none}
-.bubble--a{right:5%;bottom:24%}
-.bubble--b{left:4%;bottom:11%}
+.bubble svg{width:48px;height:48px;color:var(--text-highlight);flex:none}
+.bubble--a{left:730px;top:353px}
+.bubble--b{left:626px;top:433px}
+
+/* ── Peek row (variant 3) ────────────────────────────────────────────── */
+@property --peek{ syntax:'<number>'; inherits:true; initial-value:0; }
+.acc__peek{ display:none }
+[data-variant="preview"] .acc__peek{
+  display:grid;align-content:center;justify-items:center;gap:10px;
+  height:calc(var(--peek) * var(--peek-h));
+  margin:0 auto;padding:0;overflow:hidden;cursor:pointer;
+  width:var(--wrap);max-width:74ch;
+  font-size:var(--fs-body);line-height:var(--lh-body);text-align:center;
+  color:var(--text-secondary);
+  opacity:clamp(0, calc(var(--peek) * 2.4 - .5), 1);
+  translate:0 calc(var(--vel) * .25);
+}
+.acc__peek-more{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:var(--fs-body-sm);font-weight:700;color:var(--btn-primary);
+}
+.acc__peek-more svg{ rotate:90deg }
 
 /* ── People ──────────────────────────────────────────────────────────── */
 .people{
@@ -299,37 +317,37 @@ ul{margin:0;padding:0;list-style:none}
 }
 .people__title{
   margin:0 0 44px;font-weight:400;line-height:1.16;letter-spacing:-.015em;
-  font-size:clamp(28px,3.6vw,44px);color:var(--blue-400);
+  font-size:clamp(28px,3.6vw,44px);color:var(--gradient-light);
 }
 .cards{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
   gap:26px;max-width:900px;margin:0 auto;text-align:left;
 }
 .card{background:#fff;border-radius:6px;padding:26px 28px 30px;box-shadow:0 2px 16px rgba(0,55,129,.06)}
-.card h3{margin:0 0 12px;font-size:17px;font-weight:700;color:var(--ink)}
-.card p{margin:0 0 18px;font-size:13.5px;line-height:1.55;color:var(--ink-60)}
+.card h3{margin:0 0 12px;font-size:17px;font-weight:700;color:var(--text-primary)}
+.card p{margin:0 0 18px;font-size:13.5px;line-height:1.55;color:var(--text-secondary)}
 .card__avatars{margin:0 0 14px}
 
 /* ── Footer ──────────────────────────────────────────────────────────── */
 .footer{
   padding:44px max(24px,calc((100vw - var(--wrap))/2)) 34px;
-  background:var(--grey-50);border-top:1px solid var(--line);
+  background:var(--surface-default);border-top:1px solid var(--stroke-default);
 }
 .footer .logo{margin-bottom:28px}
 .footer__links{
   display:grid;grid-template-columns:repeat(3,minmax(140px,190px));
-  gap:14px 24px;font-size:13px;color:var(--ink-60);margin-bottom:34px;
+  gap:14px 24px;font-size:13px;color:var(--text-secondary);margin-bottom:34px;
 }
-.footer__links a:hover{color:var(--blue-900)}
+.footer__links a:hover{color:var(--text-brand)}
 .footer__news p{margin:0 0 10px;font-size:13px;font-weight:600}
 .footer__news input{
-  width:min(340px,100%);padding:11px 14px;border:1px solid var(--line);
+  width:min(340px,100%);padding:11px 14px;border:1px solid var(--stroke-default);
   border-radius:3px;font:inherit;font-size:13px;background:#fff;
 }
 .footer__bottom{
   display:flex;gap:22px;flex-wrap:wrap;align-items:center;
-  margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
-  font-size:11.5px;color:var(--ink-60);
+  margin-top:34px;padding-top:18px;border-top:1px solid var(--stroke-default);
+  font-size:11.5px;color:var(--text-secondary);
 }
 .footer__bottom nav{display:flex;gap:18px}
 
@@ -370,21 +388,21 @@ ul{margin:0;padding:0;list-style:none}
   padding:38px 34px 32px;background:#fff;border-radius:8px;
   box-shadow:0 8px 40px rgba(0,55,129,.12);
 }
-.gate__logo{display:flex;align-items:center;gap:6px;margin:0;color:var(--blue-900)}
-.gate__hint{margin:2px 0 6px;font-size:13px;color:var(--ink-60);text-align:center}
+.gate__logo{display:flex;align-items:center;gap:6px;margin:0;color:var(--text-brand)}
+.gate__hint{margin:2px 0 6px;font-size:13px;color:var(--text-secondary);text-align:center}
 .gate__input{
-  width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:3px;
+  width:100%;padding:11px 14px;border:1px solid var(--stroke-default);border-radius:3px;
   font:inherit;font-size:15px;text-align:center;
 }
-.gate__input:focus{outline:0;border-color:var(--blue-400)}
+.gate__input:focus{outline:0;border-color:var(--gradient-light)}
 .gate__btn{width:100%}
-.gate__error{margin:0;font-size:12.5px;color:var(--orange)}
+.gate__error{margin:0;font-size:12.5px;color:var(--btn-primary)}
 
 /* ── Prototype switcher ──────────────────────────────────────────────── */
 .testbar{
   position:fixed;top:0;left:0;right:0;z-index:900;
   display:flex;align-items:center;gap:4px;height:var(--testbar);
-  padding:0 16px;background:var(--blue-900);color:#fff;
+  padding:0 16px;background:var(--text-brand);color:#fff;
   font-size:12.5px;
 }
 .testbar__label{
@@ -420,7 +438,7 @@ ul{margin:0;padding:0;list-style:none}
 [data-variant="list"] .acc__track{ height:auto }
 [data-variant="list"] .acc__stage{
   position:static;height:auto;display:block;overflow:visible;
-  padding:8px 0 40px;background:var(--paper);
+  padding:8px 0 40px;background:var(--surface-secondary);
 }
 [data-variant="list"] .acc__list{ --amt:1 }
 [data-variant="list"] .acc__item{
@@ -490,9 +508,9 @@ ul{margin:0;padding:0;list-style:none}
     animation-range:cover 15% cover 85%;
   }
   @keyframes v4-focus{
-    0%   { color:var(--blue-400) }
-    50%  { color:var(--blue-900) }
-    100% { color:var(--blue-400) }
+    0%   { color:var(--gradient-light) }
+    50%  { color:var(--text-brand) }
+    100% { color:var(--gradient-light) }
   }
 }
 

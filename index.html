@@ -6,7 +6,7 @@
 <title>Allianz Invest — Prototypes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 <!-- Gate: locks the page before first paint, so nothing flashes up. -->
 <script>
@@ -103,16 +103,19 @@
   </div>
 </header>
 
-<!-- ══ Stage / Hero ════════════════════════════════════════════════════ -->
+<!-- ══ Stage / Hero ════════════════════════════════════════════════════
+     Geometry is Figma's, to the pixel: 1280×568, content column 1008
+     inset 136, headline at y96 and y272, input 800×64 at y408.
+     ══════════════════════════════════════════════════════════════════ -->
 <section class="stage">
-  <svg class="stage__watermark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-allianz"/></svg>
-  <h1 class="stage__title">
-    One platform for all<br>your financial needs.<br>
-    <span class="stage__title--strong">What’s your goal?</span>
-  </h1>
+  <img class="stage__glow stage__glow--a" src="assets/img/hero-glow.svg" alt="" aria-hidden="true">
+  <img class="stage__glow stage__glow--b" src="assets/img/hero-glow.svg" alt="" aria-hidden="true">
+  <img class="stage__mark" src="assets/img/allianz-watermark.svg" alt="" aria-hidden="true">
+  <h1 class="stage__title">One Platform for all<br>your financial needs.</h1>
+  <p class="stage__goal">What’s your goal?</p>
   <form class="prompt" role="search" onsubmit="return false">
-    <svg class="prompt__icon" width="22" height="22" aria-hidden="true"><use href="#i-spark"/></svg>
-    <input class="prompt__input" type="text" placeholder="I’d like to stop working at 60 without cutting back?" aria-label="What is your goal?">
+    <img class="prompt__icon" src="assets/img/sparkle.svg" alt="" aria-hidden="true">
+    <input class="prompt__input" type="text" placeholder="I'd like to stop working at 60 without cutting back?" aria-label="What is your goal?">
   </form>
 </section>
 

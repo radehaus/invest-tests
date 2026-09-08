@@ -437,6 +437,11 @@ ul{margin:0;padding:0;list-style:none}
   height:var(--row-h-open);
   font-size:var(--fs-row-open);
   cursor:default;
+  /* Nothing folds here, so the headline is a heading over its teaser
+     rather than an item in a centred menu: it lines up with the copy
+     beneath it. */
+  justify-content:flex-start;
+  padding-left:max(24px, calc((100vw - var(--wrap))/2));
 }
 [data-variant="list"] .acc__arrow{ display:none }
 [data-variant="list"] .acc__panel{ height:var(--panel-h) }

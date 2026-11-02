@@ -1,0 +1,35 @@
+{
+  "name": "allianz-invest-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "data": "node scripts/generate-broker-data.mjs",
+    "vault": "node --env-file-if-exists=.env.local scripts/build-vault.mjs",
+    "predev": "npm run vault",
+    "dev": "next dev",
+    "prebuild": "npm run vault",
+    "build": "next build",
+    "start": "serve out",
+    "lint": "eslint",
+    "preview": "rm -rf .preview && NEXT_PUBLIC_BASE_PATH=/invest-tests npm run build && mkdir -p .preview && cp -R out .preview/invest-tests && serve .preview -l 4321"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.66.0",
+    "motion": "^14.9.0",
+    "next": "16.4.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.4",
+    "serve": "^14.2.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

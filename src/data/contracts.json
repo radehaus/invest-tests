@@ -1,0 +1,31 @@
+{
+  "_note": "Fiktive Verträge der Persona. Zusammen mit dem Broker-Startdepot ergibt sich der Gesamtwert aus Vision.",
+  "contracts": [
+    {
+      "id": "life",
+      "product": "life",
+      "name": "Allianz Invest Life",
+      "subtitle": "80% guarantee · active strategy",
+      "value": 17520.18,
+      "paidIn": 15800.0,
+      "since": "2021-03-01",
+      "split": [
+        { "label": "Safety part", "share": 45, "tone": "safety" },
+        { "label": "Growth part", "share": 55, "tone": "growth" }
+      ]
+    },
+    {
+      "id": "wealth",
+      "product": "wealth",
+      "name": "Allianz Invest Wealth",
+      "subtitle": "Balanced · passive strategy",
+      "value": 10732.02,
+      "paidIn": 9900.0,
+      "since": "2023-06-01",
+      "split": [
+        { "label": "Bonds", "share": 50, "tone": "safety" },
+        { "label": "Equities", "share": 50, "tone": "growth" }
+      ]
+    }
+  ]
+}

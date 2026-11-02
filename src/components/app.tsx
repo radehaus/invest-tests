@@ -1,35 +1,26 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { cached, resume } from "@/lib/vault";
+import { useCallback, useEffect, useState } from "react";
+import { purgeLegacy } from "@/lib/vault";
 import type { BrokerData } from "@/lib/types";
 import { RouterProvider } from "@/lib/router";
 import { StoreProvider } from "@/lib/store";
-import { PasswordGate, SplashLogin } from "./entry";
+import { PasswordGate, Splash } from "./entry";
 import { Shell } from "./shell";
 
-type Phase = "boot" | "locked" | "login" | "app";
-const LOGGED_IN = "ai-logged-in";
+type Phase = "boot" | "locked" | "splash" | "app";
 
 export function App() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<BrokerData | null>(null);
+  const enterApp = useCallback(() => setPhase("app"), []);
 
+  // Passwort bei jedem Besuch (Anforderungen Abschnitt 7). Nur Altlasten früherer Versionen wegräumen.
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      // 1. Sitzung: Daten liegen schon entschlüsselt vor (kein Krypto)
-      // 2. Früherer Besuch: gemerkter Schlüssel (AES, ~1 ms, kein PBKDF2)
-      // 3. Sonst Passwort
-      const d = cached() ?? (await resume());
-      if (!alive) return;
-      setData(d);
-      setPhase(!d ? "locked" : sessionStorage.getItem(LOGGED_IN) ? "app" : "login");
-    })();
-    return () => {
-      alive = false;
-    };
+    purgeLegacy();
+    const t = setTimeout(() => setPhase("locked"), 0);
+    return () => clearTimeout(t);
   }, []);
 
   return (
@@ -40,30 +31,17 @@ export function App() {
           key="locked"
           onUnlock={(d) => {
             setData(d);
-            setPhase("login");
+            setPhase("splash");
           }}
         />
       )}
-      {phase === "login" && (
-        <SplashLogin
-          key="login"
-          onDone={() => {
-            sessionStorage.setItem(LOGGED_IN, "1");
-            setPhase("app");
-          }}
-        />
-      )}
+      {phase === "splash" && <Splash key="splash" onDone={enterApp} />}
       {phase === "app" && data && (
         <motion.div key="app" className="h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <RouterProvider>
             <StoreProvider data={data}>
               <Shell
                 onLogout={() => {
-                  sessionStorage.removeItem(LOGGED_IN);
-                  setPhase("login");
-                }}
-                onLock={() => {
-                  sessionStorage.removeItem(LOGGED_IN);
                   setData(null);
                   setPhase("locked");
                 }}

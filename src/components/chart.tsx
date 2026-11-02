@@ -13,10 +13,12 @@ type Props = {
   /** Index beim Scrubben, null beim Loslassen */
   onScrub?: (i: number | null) => void;
   tone?: "blue" | "light";
+  /** Waagerechte Linie, z. B. garantierter Betrag */
+  hline?: { value: number; label: string };
 };
 
 /** Linienchart mit Verlauf, Scrubbing per Finger und optionaler Vergleichslinie (Benchmark) */
-export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue" }: Props) {
+export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue", hline }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [scrub, setScrub] = useState<number | null>(null);
@@ -31,7 +33,7 @@ export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue
 
   const geo = useMemo(() => {
     const { values, compare } = series;
-    const all = showCompare && compare ? [...values, ...compare] : values;
+    const all = [...values, ...(showCompare && compare ? compare : []), ...(hline ? [hline.value] : [])];
     let min = Math.min(...all);
     let max = Math.max(...all);
     const pad = (max - min) * 0.12 || 1;
@@ -49,8 +51,9 @@ export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue
       main,
       area: `${main}L${width},${height}L0,${height}Z`,
       compare: showCompare && compare ? line(compare) : null,
+      hy: hline ? y(hline.value) : null,
     };
-  }, [series, width, height, showCompare]);
+  }, [series, width, height, showCompare, hline]);
 
   const stroke = tone === "light" ? "#ffffff" : "var(--blue)";
 
@@ -99,6 +102,14 @@ export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           />
+          {geo.hy !== null && hline && (
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <line x1={0} x2={width} y1={geo.hy} y2={geo.hy} stroke="var(--positive)" strokeWidth={1.5} strokeDasharray="2 4" />
+              <text x={width - 8} y={geo.hy - 6} textAnchor="end" fontSize={11} fontWeight={600} fill="var(--positive)">
+                {hline.label}
+              </text>
+            </motion.g>
+          )}
           {geo.compare && (
             <motion.path
               d={geo.compare}
@@ -144,18 +155,20 @@ export function Chart({ series, height = 200, showCompare, onScrub, tone = "blue
   );
 }
 
-export function RangeChips({
+export function RangeChips<T extends string = Range>({
   value,
   onChange,
   light,
+  ranges = RANGES as unknown as T[],
 }: {
-  value: Range;
-  onChange: (r: Range) => void;
+  value: T;
+  onChange: (r: T) => void;
   light?: boolean;
+  ranges?: T[];
 }) {
   return (
     <div className="flex justify-between gap-1">
-      {RANGES.map((r) => (
+      {ranges.map((r) => (
         <button
           key={r}
           onClick={() => {

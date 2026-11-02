@@ -1,11 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, Lock, ScanFace } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { prefetchVault, unlock } from "@/lib/vault";
 import type { BrokerData } from "@/lib/types";
-import persona from "@/data/persona.json";
 import { Logo } from "./logo";
 import { haptic } from "./ui";
 
@@ -38,7 +37,7 @@ export function PasswordGate({ onUnlock }: { onUnlock: (d: BrokerData) => void }
 
   return (
     <motion.div className="hero flex h-full flex-col px-7 pt-[18%]" exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-      <Logo light className="text-[20px]" />
+      <Logo light className="h-[20px]" />
       <h1 className="mt-auto text-[40px] leading-[1.05] font-bold tracking-tight">
         <span className="text-white/55">A preview.</span>
         <br />
@@ -102,88 +101,22 @@ export function PasswordGate({ onUnlock }: { onUnlock: (d: BrokerData) => void }
   );
 }
 
-/** Splash mit Logo, dann Login mit angedeuteter Face-ID. Ein Tap genügt. */
-export function SplashLogin({ onDone }: { onDone: () => void }) {
-  const [stage, setStage] = useState<"splash" | "login" | "scanning" | "ok">("splash");
-
+/** Kurzer Splash mit Logo nach dem Entsperren, dann direkt ins Cockpit. */
+export function Splash({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(() => setStage("login"), 1300);
+    const t = setTimeout(onDone, 1100);
     return () => clearTimeout(t);
-  }, []);
-
-  function scan() {
-    if (stage !== "login") return;
-    haptic();
-    setStage("scanning");
-    setTimeout(() => {
-      haptic(20);
-      setStage("ok");
-    }, 1100);
-    setTimeout(onDone, 1700);
-  }
+  }, [onDone]);
 
   return (
-    <motion.div className="ambient relative flex h-full flex-col items-center" exit={{ opacity: 0, scale: 1.04 }} transition={{ duration: 0.35 }}>
-      <motion.div
-        layout
-        className={stage === "splash" ? "flex flex-1 items-center" : "pt-[22%]"}
-        transition={{ type: "spring", stiffness: 200, damping: 28 }}
-      >
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}>
-          <Logo className="text-[28px]" />
-        </motion.div>
+    <motion.div
+      className="ambient flex h-full items-center justify-center"
+      exit={{ opacity: 0, scale: 1.04 }}
+      transition={{ duration: 0.35 }}
+    >
+      <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+        <Logo className="h-[30px]" />
       </motion.div>
-
-      <AnimatePresence>
-        {stage !== "splash" && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-1 flex-col items-center px-8 pb-[max(env(safe-area-inset-bottom),32px)]"
-          >
-            <p className="mt-16 text-[17px] text-muted">Welcome back,</p>
-            <h1 className="headline text-[40px] font-bold tracking-tight">{persona.firstName}</h1>
-
-            <button onClick={scan} aria-label="Log in with Face ID" className="relative mt-auto mb-10 size-36">
-              <motion.span
-                className="absolute inset-0 rounded-[36px] border-2 border-blue/25"
-                animate={stage === "login" ? { scale: [1, 1.08, 1], opacity: [0.6, 0.2, 0.6] } : { scale: 1, opacity: 0 }}
-                transition={{ repeat: stage === "login" ? Infinity : 0, duration: 2 }}
-              />
-              <span className="glass absolute inset-3 flex items-center justify-center overflow-hidden rounded-[30px]">
-                {stage === "ok" ? (
-                  <motion.svg viewBox="0 0 48 48" className="size-14 text-positive" initial={{ scale: 0.6 }} animate={{ scale: 1 }}>
-                    <motion.path
-                      d="M12 25 L21 34 L37 15"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={4.5}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.35 }}
-                    />
-                  </motion.svg>
-                ) : (
-                  <ScanFace size={56} strokeWidth={1.4} className="text-blue" />
-                )}
-                {stage === "scanning" && (
-                  <motion.span
-                    className="absolute inset-x-3 h-0.5 rounded-full bg-blue shadow-[0_0_14px_var(--blue)]"
-                    initial={{ top: "15%" }}
-                    animate={{ top: ["15%", "85%", "15%"] }}
-                    transition={{ duration: 1.1, ease: "easeInOut" }}
-                  />
-                )}
-              </span>
-            </button>
-            <p className="text-[15px] font-medium text-muted">
-              {stage === "login" ? "Tap to log in with Face ID" : stage === "scanning" ? "Scanning…" : "Welcome back"}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

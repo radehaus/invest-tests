@@ -7,12 +7,13 @@ import { Screen } from "@/components/shell";
 import { Chart, RangeChips } from "@/components/chart";
 import { Button, Card, Chip, Delta, IconButton, Placeholder, Segmented, Stars } from "@/components/ui";
 import { DeltaBadge, FundAvatar } from "@/components/fund-bits";
+import { Bars } from "@/components/viz";
 import { BuySheet, SellSheet } from "./trade";
 import { useStore } from "@/lib/store";
 import { AS_OF, RANGE_LABEL, fundHistory, slice, type Range } from "@/lib/series";
 import { eur, num, pct, percent, shortDate, signedEur } from "@/lib/format";
 import { hash, rng } from "@/lib/random";
-import type { Fund, Weight } from "@/lib/types";
+import type { Fund } from "@/lib/types";
 import { cx } from "@/lib/cx";
 
 type TabName = "Overview" | "Key figures" | "Feed";
@@ -265,32 +266,6 @@ function KeyFigures({ f }: { f: Fund }) {
   );
 }
 
-function Bars({ title, items }: { title: string; items: Weight[] }) {
-  const max = Math.max(...items.map((i) => i.weight));
-  return (
-    <Card className="p-5">
-      <p className="mb-3 text-[15px] font-semibold">{title}</p>
-      <div className="space-y-3">
-        {items.map((it, i) => (
-          <div key={it.name}>
-            <div className="flex justify-between text-[14px]">
-              <span className="truncate pr-3">{it.name}</span>
-              <span className="tabular font-semibold">{percent(it.weight, 1)}</span>
-            </div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ink/[0.05]">
-              <motion.div
-                className="h-full rounded-full bg-[linear-gradient(90deg,var(--blue-light),var(--blue))]"
-                initial={{ width: 0 }}
-                animate={{ width: `${(it.weight / max) * 100}%` }}
-                transition={{ delay: 0.05 * i, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
 
 // Feed: fiktive Meldungen, deterministisch je Fonds
 const NEWS: Record<string, string[]> = {

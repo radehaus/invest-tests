@@ -1,22 +1,19 @@
+/* eslint-disable @next/next/no-img-element -- statischer Export, Bildoptimierung ist aus */
 import { cx } from "@/lib/cx";
 
-// Platzhalter-Logo bis zum Branding. Finales Allianz-Invest-Logo nur hier einsetzen.
+// Offizielles Allianz-Invest-Logo (public/brand/allianz-invest-logo.png, 428 × 64, transparent).
+// Auf dunklem Grund per Filter komplett weiß. Ein SVG wäre auf Retina-Displays noch schärfer.
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export function Logo({ className, light }: { className?: string; light?: boolean }) {
   return (
-    <span className={cx("inline-flex items-center gap-2 font-bold tracking-tight", className)}>
-      <svg viewBox="0 0 32 32" className="size-[1.4em]" aria-hidden>
-        <defs>
-          <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor={light ? "#ffffff" : "var(--blue-light)"} />
-            <stop offset="1" stopColor={light ? "#ffffff" : "var(--blue-deep)"} />
-          </linearGradient>
-        </defs>
-        <circle cx="16" cy="16" r="15" fill="none" stroke="url(#logo-g)" strokeWidth="2.5" />
-        <path d="M10 22 L16 8 L22 22 M12.5 17 H19.5" fill="none" stroke="url(#logo-g)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className={light ? "text-white" : "text-blue-deep"}>
-        Allianz <span className="font-medium">Invest</span>
-      </span>
-    </span>
+    <img
+      src={`${BASE}/brand/allianz-invest-logo.png`}
+      alt="Allianz Invest"
+      width={428}
+      height={64}
+      draggable={false}
+      className={cx("w-auto max-w-none shrink-0 self-start select-none", light && "brightness-0 invert", className ?? "h-5")}
+    />
   );
 }

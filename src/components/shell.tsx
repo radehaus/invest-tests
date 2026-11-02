@@ -13,6 +13,7 @@ import { FundListScreen } from "@/screens/fund-list";
 import { FundScreen } from "@/screens/fund";
 import { ChatScreen } from "@/screens/chat";
 import { ProfileScreen } from "@/screens/profile";
+import { ContractScreen } from "@/screens/contract";
 
 const NAV: { tab: Tab; label: string; icon: typeof Home }[] = [
   { tab: "home", label: "Home", icon: Home },
@@ -22,7 +23,7 @@ const NAV: { tab: Tab; label: string; icon: typeof Home }[] = [
   { tab: "profile", label: "Profile", icon: User },
 ];
 
-function route(seg: string[], actions: { onLogout: () => void; onLock: () => void }): ReactNode {
+function route(seg: string[], actions: { onLogout: () => void }): ReactNode {
   const [tab, a, b] = seg;
   switch (tab) {
     case "products":
@@ -35,6 +36,8 @@ function route(seg: string[], actions: { onLogout: () => void; onLock: () => voi
       return <ChatScreen />;
     case "profile":
       return <ProfileScreen {...actions} />;
+    case "home":
+      return a ? <ContractScreen id={a} /> : <HomeScreen />;
     default:
       return <HomeScreen />;
   }
@@ -52,7 +55,7 @@ const variants = {
   }),
 };
 
-export function Shell(actions: { onLogout: () => void; onLock: () => void }) {
+export function Shell(actions: { onLogout: () => void }) {
   const { path, segments, direction } = useRouter();
   const isRoot = segments.length <= 1;
 
@@ -77,8 +80,16 @@ export function Shell(actions: { onLogout: () => void; onLock: () => void }) {
   );
 }
 
+/**
+ * "docked": angedockt am unteren Rand, wie Trade Republic. Im mobilen Safari ruhiger, weil Safari
+ *           selbst eine schwebende Leiste darunter legt. Entschieden 2026-11-02.
+ * "floating": schwebende Pille, wie Revolut. Zum Vergleichen hier umschalten.
+ */
+const NAV_STYLE: "docked" | "floating" = "docked";
+
 function BottomNav({ visible, current }: { visible: boolean; current: Tab }) {
   const { go } = useRouter();
+  const docked = NAV_STYLE === "docked";
   return (
     <AnimatePresence>
       {visible && (
@@ -87,7 +98,11 @@ function BottomNav({ visible, current }: { visible: boolean; current: Tab }) {
           animate={{ y: 0 }}
           exit={{ y: 120 }}
           transition={{ type: "spring", stiffness: 400, damping: 36 }}
-          className="glass absolute inset-x-4 bottom-[max(env(safe-area-inset-bottom),14px)] z-30 flex h-[68px] items-center justify-around rounded-full px-2"
+          className={
+            docked
+              ? "absolute inset-x-0 bottom-0 z-30 flex items-start justify-around border-t border-line bg-card px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-xl backdrop-saturate-150"
+              : "glass absolute inset-x-4 bottom-[max(env(safe-area-inset-bottom),14px)] z-30 flex h-[68px] items-center justify-around rounded-full px-2"
+          }
         >
           {NAV.map(({ tab, label, icon: Icon }) => {
             const active = current === tab && TABS.includes(current);
@@ -101,14 +116,20 @@ function BottomNav({ visible, current }: { visible: boolean; current: Tab }) {
                 aria-current={active ? "page" : undefined}
                 className="relative flex h-14 flex-1 flex-col items-center justify-center gap-0.5"
               >
-                {active && (
+                {active && !docked && (
                   <motion.span
                     layoutId="nav-pill"
                     className="absolute inset-x-1 inset-y-0 rounded-full bg-blue-wash"
                     transition={{ type: "spring", stiffness: 500, damping: 38 }}
                   />
                 )}
-                <Icon size={22} strokeWidth={active ? 2.4 : 1.9} className={cx("relative", active ? "text-blue-deep" : "text-muted")} />
+                <motion.span
+                  className="relative"
+                  animate={{ scale: active && docked ? 1.08 : 1, y: active && docked ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                >
+                  <Icon size={24} strokeWidth={active ? 2.4 : 1.9} className={active ? "text-blue-deep" : "text-muted"} />
+                </motion.span>
                 <span className={cx("relative text-[11px] font-semibold", active ? "text-blue-deep" : "text-muted")}>{label}</span>
               </button>
             );

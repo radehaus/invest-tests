@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, FileText, Lock, LogOut, RotateCcw, Settings } from "lucide-react";
+import { ChevronRight, FileText, LogOut, RotateCcw, Settings } from "lucide-react";
 import { useState } from "react";
 import { Screen } from "@/components/shell";
 import { Card } from "@/components/ui";
@@ -11,7 +11,7 @@ import persona from "@/data/persona.json";
 import { monthYear } from "@/lib/format";
 
 // Einfaches Profil. Dokumente, Steuerbescheinigung und Einstellungen folgen in Schritt 7.
-export function ProfileScreen({ onLogout, onLock }: { onLogout: () => void; onLock: () => void }) {
+export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   const { reset } = useStore();
   const [confirm, setConfirm] = useState(false);
 
@@ -19,13 +19,13 @@ export function ProfileScreen({ onLogout, onLock }: { onLogout: () => void; onLo
     { icon: FileText, label: "Documents", onClick: undefined },
     { icon: Settings, label: "Settings", onClick: undefined },
     { icon: RotateCcw, label: "Reset demo", onClick: () => setConfirm(true) },
-    { icon: LogOut, label: "Log out", onClick: onLogout },
     {
-      icon: Lock,
-      label: "Lock preview",
+      // Zurück zur Passwortsperre, z. B. bevor das Handy weitergegeben wird
+      icon: LogOut,
+      label: "Log out",
       onClick: () => {
         lock();
-        onLock();
+        onLogout();
       },
     },
   ];

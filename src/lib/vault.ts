@@ -1,21 +1,20 @@
 import type { BrokerData } from "./types";
 
 // Entschlüsselt die Demo-Daten im Browser (Gegenstück zu scripts/build-vault.mjs).
-// Tempo-Vorgaben aus den Anforderungen, Abschnitt 7:
+// Vorgaben aus den Anforderungen, Abschnitt 7:
+// - Passwort bei jedem Besuch. Kein Schlüssel und nichts Entschlüsseltes in localStorage oder sessionStorage,
+//   die Daten liegen nur im Speicher. Neu laden heißt neu eingeben.
 // - Der verschlüsselte Block wird schon geladen, während der Passwort-Screen zu sehen ist (prefetchVault).
-// - PBKDF2 läuft nur einmal, direkt nach der Passworteingabe.
-// - Danach liegen die Daten im Speicher und für die Sitzung in sessionStorage. Kein erneutes Entschlüsseln.
-// - Für spätere Sitzungen merken wir den abgeleiteten AES-Schlüssel: Öffnen dauert dann ~1 ms, ohne PBKDF2.
-// Das ist eine Sperre gegen Zufallsbesucher, kein Schutz vor jemandem, der das Passwort kennt.
+// - PBKDF2 läuft einmal pro Seitenaufruf, direkt nach der Passworteingabe (geschätzt 120 bis 200 ms auf
+//   einem Mittelklasse-Handy). Danach kein erneutes Entschlüsseln, Seitenwechsel bleiben schnell.
 
 type Vault = { v: 1; iterations: number; salt: string; iv: string; data: string };
 
-const SESSION_DATA = "ai-vault-data";
-const KEY_STORE = "ai-vault-key";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+// Frühere Versionen haben Schlüssel bzw. Daten gespeichert. Beim Laden entfernen.
+const LEGACY = { local: "ai-vault-key", session: "ai-vault-data" };
 
 const unb64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-const b64 = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)));
 
 let memory: BrokerData | null = null;
 let vaultPromise: Promise<Vault> | null = null;
@@ -29,24 +28,16 @@ export function prefetchVault() {
   return vaultPromise;
 }
 
-async function open(key: CryptoKey): Promise<BrokerData> {
-  const v = await prefetchVault();
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(v.iv) }, key, unb64(v.data));
-  const text = new TextDecoder().decode(plain);
-  memory = JSON.parse(text);
-  sessionStorage.setItem(SESSION_DATA, text);
-  return memory!;
+/** Entfernt gespeicherte Schlüssel und Daten älterer Versionen. */
+export function purgeLegacy() {
+  localStorage.removeItem(LEGACY.local);
+  sessionStorage.removeItem(LEGACY.session);
 }
 
-/** Sofort verfügbare Daten (Speicher oder Sitzung), sonst null. Synchron, ohne Krypto. */
-export function cached(): BrokerData | null {
-  if (memory) return memory;
-  const s = typeof window === "undefined" ? null : sessionStorage.getItem(SESSION_DATA);
-  if (s) memory = JSON.parse(s);
-  return memory;
-}
+/** Daten dieses Seitenaufrufs, sonst null */
+export const cached = () => memory;
 
-/** Mit Passwort öffnen (PBKDF2, einmal). Wirft bei falschem Passwort. */
+/** Mit Passwort öffnen. Wirft bei falschem Passwort. */
 export async function unlock(password: string) {
   const v = await prefetchVault();
   const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password.trim()), "PBKDF2", false, [
@@ -56,29 +47,14 @@ export async function unlock(password: string) {
     { name: "PBKDF2", hash: "SHA-256", salt: unb64(v.salt), iterations: v.iterations },
     base,
     { name: "AES-GCM", length: 256 },
-    true,
+    false,
     ["decrypt"],
   );
-  const data = await open(key);
-  localStorage.setItem(KEY_STORE, b64(await crypto.subtle.exportKey("raw", key)));
-  return data;
-}
-
-/** Mit gemerktem Schlüssel öffnen (ohne PBKDF2). null, wenn keiner da oder veraltet. */
-export async function resume(): Promise<BrokerData | null> {
-  const raw = localStorage.getItem(KEY_STORE);
-  if (!raw) return null;
-  try {
-    const key = await crypto.subtle.importKey("raw", unb64(raw), "AES-GCM", false, ["decrypt"]);
-    return await open(key);
-  } catch {
-    localStorage.removeItem(KEY_STORE);
-    return null;
-  }
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(v.iv) }, key, unb64(v.data));
+  memory = JSON.parse(new TextDecoder().decode(plain));
+  return memory!;
 }
 
 export function lock() {
   memory = null;
-  localStorage.removeItem(KEY_STORE);
-  sessionStorage.removeItem(SESSION_DATA);
 }

@@ -6,6 +6,8 @@ import { Screen } from "@/components/shell";
 import { Button, Card } from "@/components/ui";
 import { useRouter } from "@/lib/router";
 import { useStore } from "@/lib/store";
+import { eur } from "@/lib/format";
+import { cx } from "@/lib/cx";
 
 type Product = {
   id: string;
@@ -77,8 +79,33 @@ const PRODUCTS: Product[] = [
   },
 ];
 
+/** Welche Produkte der Kunde schon hat: Vertrags-ID für die Detailseite und aktueller Wert */
+function useOwned() {
+  const { contracts, state, broker } = useStore();
+  return (productId: string): { contractId: string; value: number } | null => {
+    if (productId === "broker") return Object.keys(state.positions).length ? { contractId: "broker", value: broker.value } : null;
+    const c = contracts.find((x) => x.product === productId);
+    return c ? { contractId: c.id, value: c.value } : null;
+  };
+}
+
+/** Markierung "Yours" auf der Produktkachel */
+function OwnedBadge({ dark }: { dark?: boolean }) {
+  return (
+    <span
+      className={cx(
+        "inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[12px] font-bold",
+        dark ? "bg-white text-blue-deep" : "bg-positive-wash text-positive",
+      )}
+    >
+      <Check size={12} strokeWidth={3} /> Yours
+    </span>
+  );
+}
+
 export function ProductsScreen() {
   const { go } = useRouter();
+  const owned = useOwned();
   return (
     <Screen>
       <div className="pt-[max(env(safe-area-inset-top),18px)]">
@@ -89,6 +116,7 @@ export function ProductsScreen() {
         {PRODUCTS.map((p, i) => {
           const Icon = p.icon;
           const featured = i === 0;
+          const mine = owned(p.id);
           return (
             <motion.div
               key={p.id}
@@ -102,7 +130,10 @@ export function ProductsScreen() {
                   onClick={() => go(`/products/${p.id}`)}
                   className="hero relative w-full overflow-hidden rounded-card p-5 text-left shadow-float"
                 >
-                  <span className="rounded-full bg-orange px-2.5 py-1 text-[12px] font-bold">NEW</span>
+                  <span className="flex items-center gap-2">
+                    <span className="rounded-full bg-orange px-2.5 py-1 text-[12px] font-bold">NEW</span>
+                    {mine && <OwnedBadge dark />}
+                  </span>
                   <p className="mt-4 text-[26px] leading-tight font-bold tracking-tight">
                     <span className="text-white/55">{p.claim[0]}</span>
                     <br />
@@ -115,12 +146,19 @@ export function ProductsScreen() {
                 </motion.button>
               ) : (
                 <Card onClick={() => go(`/products/${p.id}`)} className="h-full p-4">
-                  <span className="flex size-11 items-center justify-center rounded-full bg-blue-wash text-blue">
-                    <Icon size={20} />
+                  <span className="flex items-start justify-between">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-blue-wash text-blue">
+                      <Icon size={20} />
+                    </span>
+                    {mine && <OwnedBadge />}
                   </span>
                   <p className="mt-6 text-[13px] font-semibold text-muted">Allianz Invest</p>
                   <p className="text-[19px] font-bold tracking-tight">{p.name}</p>
-                  <p className="mt-1 text-[13px] leading-snug text-muted">{p.claim[1]}</p>
+                  {mine ? (
+                    <p className="tabular mt-1 text-[13px] leading-snug font-semibold text-ink">{eur(mine.value)}</p>
+                  ) : (
+                    <p className="mt-1 text-[13px] leading-snug text-muted">{p.claim[1]}</p>
+                  )}
                 </Card>
               )}
             </motion.div>
@@ -133,11 +171,10 @@ export function ProductsScreen() {
 
 export function ProductDetailScreen({ id }: { id: string }) {
   const { go } = useRouter();
-  const { contracts } = useStore();
+  const mine = useOwned()(id);
   const p = PRODUCTS.find((x) => x.id === id);
   if (!p) return <Screen back>Product not found.</Screen>;
   const Icon = p.icon;
-  const owned = contracts.some((c) => c.product === id);
 
   return (
     <Screen back>
@@ -165,8 +202,19 @@ export function ProductDetailScreen({ id }: { id: string }) {
         ))}
       </Card>
 
-      {owned && (
-        <p className="mt-4 rounded-2xl bg-positive-wash p-4 text-[15px] font-semibold text-positive">You already have this contract.</p>
+      {mine && (
+        <button
+          onClick={() => go(`/home/${mine.contractId}`)}
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-positive-wash p-4 text-left text-positive"
+        >
+          <Check size={18} strokeWidth={3} className="shrink-0" />
+          <span className="min-w-0 flex-1 text-[15px] font-semibold">
+            You already have this · <span className="tabular">{eur(mine.value)}</span>
+          </span>
+          <span className="flex items-center gap-1 text-[15px] font-semibold">
+            Open <ArrowRight size={16} />
+          </span>
+        </button>
       )}
 
       <div className="mt-6">

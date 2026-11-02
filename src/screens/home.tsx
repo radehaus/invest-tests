@@ -8,10 +8,11 @@ import { Chart, RangeChips } from "@/components/chart";
 import { Card, CountUp, Delta, IconButton, SectionTitle, haptic } from "@/components/ui";
 import { Sheet } from "@/components/sheet";
 import { Logo } from "@/components/logo";
+import { SavingsPlanSheet } from "./savings-plan";
 import { useRouter } from "@/lib/router";
 import { useStore } from "@/lib/store";
 import { RANGE_LABEL, slice, syntheticHistory, type Range } from "@/lib/series";
-import { eur, pct, shortDate, signedEur } from "@/lib/format";
+import { eur, eur0, pct, shortDate, signedEur } from "@/lib/format";
 
 export const AI_CHIPS = ["How much should I save for retirement?", "Is my portfolio balanced?", "What is the Pension Depot?"];
 
@@ -23,6 +24,7 @@ export function HomeScreen() {
   const [hint, setHint] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [soon, setSoon] = useState<string | null>(null);
+  const [planOpen, setPlanOpen] = useState(false);
   const press = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const series = useMemo(() => slice(syntheticHistory("cockpit", total, 0.064, 0.07), range), [total, range]);
@@ -42,14 +44,21 @@ export function HomeScreen() {
   };
   const endPress = () => press.current && clearTimeout(press.current);
 
+  const plans = (n: number) => (n ? ` · ${n} savings plan${n > 1 ? "s" : ""}` : "");
   const items = [
-    ...contracts.map((c) => ({ id: c.id, name: c.name, sub: c.subtitle, value: c.value, to: `/products/${c.product}` })),
+    ...contracts.map((c) => ({
+      id: c.id,
+      name: c.name,
+      sub: c.subtitle + plans(state.plans.filter((p) => p.contractId === c.id).length),
+      value: c.value,
+      to: `/home/${c.id}`,
+    })),
     {
       id: "broker",
       name: "Allianz Invest Broker",
-      sub: `${Object.keys(state.positions).length} funds${state.plans.length ? ` · ${state.plans.length} savings plan${state.plans.length > 1 ? "s" : ""}` : ""}`,
+      sub: `${Object.keys(state.positions).length} funds${plans(state.plans.filter((p) => p.fundId).length)}`,
       value: broker.value,
-      to: "/broker",
+      to: "/home/broker",
     },
   ];
 
@@ -64,7 +73,7 @@ export function HomeScreen() {
           className="select-none [-webkit-touch-callout:none]"
           aria-label="Allianz Invest"
         >
-          <Logo className="text-[17px]" />
+          <Logo className="h-[18px]" />
         </button>
         <IconButton label="Open chat" onClick={() => go("/chat")}>
           <MessageCircle size={20} />
@@ -103,8 +112,8 @@ export function HomeScreen() {
                 <Gift size={20} />
               </span>
               <span className="flex-1">
-                <span className="block text-[15px] font-semibold">Your government top-up for 2026 has arrived</span>
-                <span className="block text-[13px] text-muted">See what the Pension Depot adds on top</span>
+                <span className="block text-[15px] font-semibold">New in 2027: government top-ups for your retirement</span>
+                <span className="block text-[13px] text-muted">Up to {eur0(540)} a year with the Pension Depot</span>
               </span>
               <button
                 aria-label="Dismiss"
@@ -125,7 +134,7 @@ export function HomeScreen() {
         {[
           { label: "Deposit", icon: ArrowDownToLine, onClick: () => setSoon("Deposit") },
           { label: "Withdraw", icon: ArrowUpFromLine, onClick: () => setSoon("Withdraw") },
-          { label: "Savings plan", icon: Repeat, onClick: () => go("/broker") },
+          { label: "Savings plan", icon: Repeat, onClick: () => setPlanOpen(true) },
         ].map(({ label, icon: Icon, onClick }) => (
           <Card key={label} onClick={onClick} className="flex flex-col items-center gap-2 py-4">
             <span className="flex size-11 items-center justify-center rounded-full bg-blue-wash text-blue">
@@ -171,6 +180,8 @@ export function HomeScreen() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SavingsPlanSheet open={planOpen} onClose={() => setPlanOpen(false)} />
 
       <Sheet open={soon !== null} onClose={() => setSoon(null)}>
         <h2 className="headline text-[26px] font-bold">{soon}</h2>

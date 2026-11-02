@@ -125,7 +125,7 @@ export function Slider({
         <span className="tabular rounded-full bg-blue-wash px-3 py-1 text-[15px] font-bold text-blue-deep">{format(value)}</span>
       </div>
       {/* Spur und Daumen gezeichnet, darüber der unsichtbare native Regler (Touch, Tastatur, Screenreader).
-          Pseudo-Elemente wie ::-webkit-slider-thumb überleben den Turbopack-CSS-Build nicht. */}
+          Sieht so in allen Browsern gleich aus, ohne ::-webkit-slider-thumb und Co. */}
       <div className="relative h-8">
         <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 overflow-hidden rounded-full bg-ink/[0.08]">
           <div className="h-full rounded-full bg-blue" style={{ width: `${pctPos}%` }} />

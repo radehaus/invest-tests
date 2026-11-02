@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "serve out",
     "lint": "eslint",
-    "preview": "rm -rf .preview && NEXT_PUBLIC_BASE_PATH=/invest-tests npm run build && mkdir -p .preview && cp -R out .preview/invest-tests && serve .preview -l 4321"
+    "preview": "rm -rf .preview .next && NEXT_PUBLIC_BASE_PATH=/invest-tests npm run build && mkdir -p .preview && cp -R out .preview/invest-tests && serve .preview -l 4321"
   },
   "dependencies": {
     "clsx": "^2.1.1",
